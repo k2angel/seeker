@@ -9,11 +9,21 @@ use crate::import::parser::{build_song, parse_chart};
 use crate::{model, utils};
 
 fn copy_dir(src: &Path, dst: &Path) -> Result<()> {
-    let mut options = fs_extra::dir::CopyOptions::new();
-    options.copy_inside = true;
-    options.overwrite = true;
+    let options = fs_extra::dir::CopyOptions {
+        copy_inside: true,
+        overwrite: true,
+        ..Default::default()
+    };
 
-    fs_extra::dir::copy(&src, dst, &options)?;
+    if dst.exists() {
+        let entries: Vec<_> = std::fs::read_dir(src)?
+            .map(|entry| entry.map(|e| e.path()))
+            .collect::<std::io::Result<_>>()?;
+
+        fs_extra::copy_items(&entries, dst, &options)?;
+    } else {
+        fs_extra::dir::copy(src, dst, &options)?;
+    }
 
     Ok(())
 }
