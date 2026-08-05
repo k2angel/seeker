@@ -11,8 +11,12 @@ fn main() -> Result<()> {
 
     match cli.command {
         Command::Import { path } => {
-            for p in path {
+            for (i, p) in path.clone().into_iter().enumerate() {
                 command::import::run(&config, &p)?;
+
+                if i + 1 < path.len() {
+                    println!();
+                }
             }
 
             Ok(())

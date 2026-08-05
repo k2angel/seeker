@@ -19,7 +19,9 @@ pub fn run(config: &Config, path: &Path) -> Result<()> {
         tmp.path()
     };
 
-    for (directory, files) in find_song_dirs(root) {
+    let song_dirs = find_song_dirs(root);
+
+    for (i, (directory, files)) in song_dirs.clone().into_iter().enumerate() {
         println!(
             "\x1b[1;34m{} ({} items)\x1b[0m",
             directory.display(),
@@ -67,6 +69,10 @@ pub fn run(config: &Config, path: &Path) -> Result<()> {
                     .map(|s| format!(" {}", s))
                     .unwrap_or_default(),
             );
+        }
+
+        if i + 1 < song_dirs.len() {
+            println!();
         }
     }
 
