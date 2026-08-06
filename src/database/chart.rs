@@ -1,7 +1,8 @@
 use anyhow::Result;
 use std::path::PathBuf;
 
-use crate::database::Database;
+use crate::cli::SearchExpr;
+use crate::database::{Database, search_condition};
 use crate::model::{Chart, ChartRow};
 
 impl ChartRow {
@@ -87,35 +88,44 @@ impl Database {
         Ok(())
     }
 
-    pub fn search_charts(&self, query: Option<String>) -> Result<Vec<Chart>> {
-        let sql = if query.is_some() {
-            "
-            SELECT *
-            FROM charts
-            WHERE
-                title      LIKE ?1 OR
-                subtitle   LIKE ?1 OR
-                artist     LIKE ?1 OR
-                sub_artist LIKE ?1
-            ORDER BY
-                title;
-            "
+    pub fn search_charts(&self, expr: Option<&SearchExpr>) -> Result<Vec<Chart>> {
+        let mut params = Vec::new();
+
+        let sql = if expr.is_some() {
+            let condition = search_condition(
+                expr.as_ref().unwrap(),
+                &["title", "subtitle", "artist", "sub_artist"],
+                &mut params,
+            );
+
+            format!(
+                "
+                SELECT *
+                FROM charts
+                WHERE {}
+                ORDER BY title;
+                ",
+                condition
+            )
         } else {
             "
             SELECT *
             FROM charts
-            ORDER BY
-                title;
+            ORDER BY title;
             "
+            .to_string()
         };
 
-        let mut stmt = self.conn.prepare(sql)?;
+        let mut stmt = self.conn.prepare(&sql)?;
 
-        let rows: Vec<ChartRow> = match query {
-            Some(query) => {
-                let pattern = format!("%{}%", query);
+        let rows: Vec<ChartRow> = match expr {
+            Some(_) => {
+                let params: Vec<&dyn rusqlite::ToSql> = params
+                    .iter()
+                    .map(|param| param as &dyn rusqlite::ToSql)
+                    .collect();
 
-                let rows = stmt.query_map([&pattern], ChartRow::from_row)?;
+                let rows = stmt.query_map(params.as_slice(), ChartRow::from_row)?;
                 rows.collect::<rusqlite::Result<_>>()?
             }
 
@@ -140,10 +150,35 @@ impl Database {
         Ok(())
     }
 
-    pub fn count_charts(&self) -> Result<i64> {
-        Ok(self
-            .conn
-            .query_row("SELECT COUNT(*) FROM charts", [], |row| row.get(0))?)
+    pub fn count_charts(&self, expr: Option<&SearchExpr>) -> Result<i64> {
+        let mut params = Vec::new();
+
+        let sql = if expr.is_some() {
+            let condition = search_condition(
+                expr.as_ref().unwrap(),
+                &["title", "subtitle", "artist", "sub_artist"],
+                &mut params,
+            );
+
+            format!("SELECT COUNT(*) FROM charts WHERE {}", condition)
+        } else {
+            "SELECT COUNT(*) FROM charts".to_string()
+        };
+
+        let mut stmt = self.conn.prepare(&sql)?;
+
+        Ok(match expr {
+            Some(_) => {
+                let params: Vec<&dyn rusqlite::ToSql> = params
+                    .iter()
+                    .map(|param| param as &dyn rusqlite::ToSql)
+                    .collect();
+
+                stmt.query_row(params.as_slice(), |row| row.get(0))?
+            }
+
+            None => stmt.query_row([], |row| row.get(0))?,
+        })
     }
 
     pub fn count_song_charts(&self, song_id: i64) -> Result<i64> {

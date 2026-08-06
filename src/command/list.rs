@@ -8,8 +8,10 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
     let db = Database::open(&config.database)?;
     db.create_schema()?;
 
+    let expr = args.search.expr();
+
     if args.song {
-        let songs = db.search_songs(args.query)?;
+        let songs = db.search_songs(expr.as_ref())?;
 
         for song in songs.iter() {
             if args.path {
@@ -19,7 +21,7 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
             }
         }
     } else {
-        let charts = db.search_charts(args.query)?;
+        let charts = db.search_charts(expr.as_ref())?;
         let songs = db.detail_songs(charts.iter().filter_map(|c| c.song_id))?;
 
         for chart in charts.iter() {

@@ -4,6 +4,8 @@ mod song;
 use anyhow::Result;
 use std::path::Path;
 
+use crate::cli::{SearchExpr, SearchField};
+
 // const VERSION: i32 = 1;
 const SCHEMA: &str = include_str!("schema.sql");
 
@@ -27,4 +29,46 @@ impl Database {
     pub fn transaction(&mut self) -> Result<rusqlite::Transaction<'_>> {
         Ok(self.conn.transaction()?)
     }
+}
+
+fn search_condition(expr: &SearchExpr, all_fields: &[&str], params: &mut Vec<String>) -> String {
+    let groups = match expr {
+        SearchExpr::And(terms) => vec![terms],
+        SearchExpr::Or(groups) => groups.iter().collect(),
+    };
+
+    groups
+        .into_iter()
+        .map(|terms| {
+            let conditions = terms
+                .iter()
+                .map(|term| {
+                    params.push(format!("%{}%", term.value));
+                    let n = params.len();
+
+                    match term.field {
+                        SearchField::All => {
+                            let fields = all_fields
+                                .iter()
+                                .map(|field| format!("{field} LIKE ?{n}"))
+                                .collect::<Vec<_>>();
+
+                            format!("({})", fields.join(" OR "))
+                        }
+
+                        SearchField::Artist => {
+                            format!("artist LIKE ?{n}")
+                        }
+
+                        SearchField::Title => {
+                            format!("title LIKE ?{n}")
+                        }
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            format!("({})", conditions.join(" AND "))
+        })
+        .collect::<Vec<_>>()
+        .join(" OR ")
 }

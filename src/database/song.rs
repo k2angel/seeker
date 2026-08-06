@@ -1,9 +1,9 @@
 use anyhow::Result;
 use serde_json;
-use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::collections::HashMap;
 
-use crate::database::Database;
+use crate::cli::SearchExpr;
+use crate::database::{Database, search_condition};
 use crate::model::{Song, SongRow};
 use crate::utils;
 
@@ -140,30 +140,41 @@ impl Database {
         }
     }
 
-    pub fn search_songs(&self, query: Option<String>) -> Result<Vec<Song>> {
-        let sql = if query.is_some() {
-            "
-            SELECT *
-            FROM songs
-            WHERE
-                title  LIKE ?1 OR
-                artist LIKE ?1
-            ORDER BY title;
-            "
+    pub fn search_songs(&self, expr: Option<&SearchExpr>) -> Result<Vec<Song>> {
+        let mut params = Vec::new();
+
+        let sql = if expr.is_some() {
+            let condition =
+                search_condition(expr.as_ref().unwrap(), &["title", "artist"], &mut params);
+
+            format!(
+                "
+                SELECT *
+                FROM songs
+                WHERE {}
+                ORDER BY title;
+                ",
+                condition
+            )
         } else {
             "
             SELECT *
             FROM songs
             ORDER BY title;
             "
+            .to_string()
         };
 
-        let mut stmt = self.conn.prepare(sql)?;
+        let mut stmt = self.conn.prepare(&sql)?;
 
-        let rows: Vec<SongRow> = match query {
-            Some(query) => {
-                let pattern = format!("%{}%", query);
-                let rows = stmt.query_map([&pattern], SongRow::from_row)?;
+        let rows: Vec<SongRow> = match expr {
+            Some(_) => {
+                let params: Vec<&dyn rusqlite::ToSql> = params
+                    .iter()
+                    .map(|param| param as &dyn rusqlite::ToSql)
+                    .collect();
+
+                let rows = stmt.query_map(params.as_slice(), SongRow::from_row)?;
                 rows.collect::<rusqlite::Result<_>>()?
             }
 
@@ -188,9 +199,31 @@ impl Database {
         Ok(())
     }
 
-    pub fn count_songs(&self) -> Result<i64> {
-        Ok(self
-            .conn
-            .query_row("SELECT COUNT(*) FROM songs", [], |row| row.get(0))?)
+    pub fn count_songs(&self, expr: Option<&SearchExpr>) -> Result<i64> {
+        let mut params = Vec::new();
+
+        let sql = if expr.is_some() {
+            let condition =
+                search_condition(expr.as_ref().unwrap(), &["title", "artist"], &mut params);
+
+            format!("SELECT COUNT(*) FROM songs WHERE {}", condition)
+        } else {
+            "SELECT COUNT(*) FROM songs".to_string()
+        };
+
+        let mut stmt = self.conn.prepare(&sql)?;
+
+        Ok(match expr {
+            Some(_) => {
+                let params: Vec<&dyn rusqlite::ToSql> = params
+                    .iter()
+                    .map(|param| param as &dyn rusqlite::ToSql)
+                    .collect();
+
+                stmt.query_row(params.as_slice(), |row| row.get(0))?
+            }
+
+            None => stmt.query_row([], |row| row.get(0))?,
+        })
     }
 }

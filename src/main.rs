@@ -24,6 +24,6 @@ fn main() -> Result<()> {
 
         Command::List(args) => command::list::run(&config, args),
         Command::Remove(args) => command::remove::run(&config, args),
-        Command::Stats {} => command::stats::run(&config),
+        Command::Stats(args) => command::stats::run(&config, args),
     }
 }
