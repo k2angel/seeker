@@ -2,10 +2,60 @@ use clap::{Args, Parser, Subcommand};
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(version, about)]
+#[command(version, about = "BMS library manager.")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
+}
+
+#[derive(Subcommand)]
+pub enum Command {
+    /// Import BMS files into the libarry.
+    Import {
+        /// Files or directories to import.
+        path: Vec<PathBuf>,
+    },
+
+    /// List songs or charts.
+    #[command(visible_alias = "ls")]
+    List(ListArgs),
+
+    /// Remove songs or charts.
+    #[command(visible_alias = "rm")]
+    Remove(RemoveArgs),
+
+    /// Show library statics.
+    Stats(StatsArgs),
+}
+
+#[derive(Args)]
+pub struct ListArgs {
+    #[command(flatten)]
+    pub search: SearchArgs,
+
+    /// List songs instead of charts.
+    #[arg(short, long)]
+    pub song: bool,
+
+    /// Print paths instead of song/chart information.
+    #[arg(short, long)]
+    pub path: bool,
+}
+
+#[derive(Args)]
+pub struct RemoveArgs {
+    #[command(flatten)]
+    pub search: SearchArgs,
+
+    /// Remove songs instead of charts.
+    #[arg(short, long)]
+    pub song: bool,
+}
+
+#[derive(Args)]
+pub struct StatsArgs {
+    #[command(flatten)]
+    pub search: SearchArgs,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -71,46 +121,4 @@ impl SearchArgs {
             _ => Some(SearchExpr::Or(groups)),
         }
     }
-}
-
-#[derive(Args)]
-pub struct ListArgs {
-    #[command(flatten)]
-    pub search: SearchArgs,
-
-    #[arg(short, long)]
-    pub song: bool,
-
-    #[arg(short, long)]
-    pub path: bool,
-}
-
-#[derive(Args)]
-pub struct RemoveArgs {
-    #[command(flatten)]
-    pub search: SearchArgs,
-
-    #[arg(short, long)]
-    pub song: bool,
-}
-
-#[derive(Args)]
-pub struct StatsArgs {
-    #[command(flatten)]
-    pub search: SearchArgs,
-}
-
-#[derive(Subcommand)]
-pub enum Command {
-    Import {
-        path: Vec<PathBuf>,
-    },
-
-    #[command(visible_alias = "ls")]
-    List(ListArgs),
-
-    #[command(visible_alias = "rm")]
-    Remove(RemoveArgs),
-
-    Stats(StatsArgs),
 }
