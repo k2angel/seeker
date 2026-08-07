@@ -44,6 +44,14 @@ fn common_prefix_test() {
         "Witch of Dimension ～次元の魔女～ [Unison]",
     ];
 
+    let titles3 = [
+        "Xiper 2026[SP ANOTHER]",
+        "Xiper 2026[SP BEGINNER]",
+        "Xiper 2026[SP HYPER]",
+        "Xiper 2026[SP INSANE]",
+        "Xiper 2026[SP NORMAL]",
+    ];
+
     let artists = [
         "plastic feat.サキト",
         "plastic feat.サキト / obj:夢瑠",
@@ -56,5 +64,6 @@ fn common_prefix_test() {
         utils::common_prefix(titles2),
         "Witch of Dimension ～次元の魔女～"
     );
+    assert_eq!(utils::common_prefix(titles3), "Xiper 2026");
     assert_eq!(utils::common_prefix(artists), "plastic feat.サキト");
 }

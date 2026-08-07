@@ -20,10 +20,17 @@ pub fn sha256sum(data: &[u8]) -> String {
 
 pub fn tokenize(s: &str) -> Vec<Token> {
     let re = Regex::new(r"\[\S*\]|\(\S*\)|-[^-]+-").unwrap();
+    let re_playside = Regex::new(r"[\[(-](SP|sp|DP|dp)$").unwrap();
 
     let words: Vec<Vec<&str>> = s
         .split_whitespace()
         .map(|word| {
+            let word = if let Some(m) = re_playside.find(word) {
+                &word[..m.start()]
+            } else {
+                word
+            };
+
             let mut result = Vec::new();
             let mut pos = 0;
 
