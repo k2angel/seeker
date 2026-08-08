@@ -5,7 +5,7 @@ use crate::database::Database;
 use crate::model::Config;
 
 pub fn run(config: &Config, args: StatsArgs) -> Result<()> {
-    let db = Database::open(&config.database)?;
+    let db = Database::open(&config.library)?;
     db.create_schema()?;
 
     let expr = args.search.expr();

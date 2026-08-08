@@ -7,7 +7,7 @@ use crate::import::{extract_archive, find_song_dirs, import_directory};
 use crate::model::Config;
 
 pub fn run(config: &Config, path: &Path) -> Result<()> {
-    let mut db = Database::open(&config.database)?;
+    let mut db = Database::open(&config.library)?;
     db.create_schema()?;
 
     let tmp;
@@ -28,7 +28,7 @@ pub fn run(config: &Config, path: &Path) -> Result<()> {
             files.len()
         );
 
-        let result = import_directory(&mut db, &config.library, &directory, &files)?;
+        let result = import_directory(&mut db, &config.directory, &directory, &files)?;
 
         println!(
             "\x1b[33m{} - {}\x1b[m",

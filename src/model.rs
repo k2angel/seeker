@@ -3,8 +3,8 @@ use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    pub directory: PathBuf,
     pub library: PathBuf,
-    pub database: PathBuf,
 }
 
 pub struct ImportResult {

@@ -26,7 +26,7 @@ fn confirm_remove(count: usize) -> Result<()> {
 }
 
 pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
-    let db = Database::open(&config.database)?;
+    let db = Database::open(&config.library)?;
     db.create_schema()?;
 
     let expr = args.search.expr();
@@ -41,7 +41,7 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
         confirm_remove(songs.len())?;
 
         for song in songs.iter() {
-            std::fs::remove_dir_all(song.library_dir(&config.library))?;
+            std::fs::remove_dir_all(song.library_dir(&config.directory))?;
             db.remove_song(song.id.unwrap())?;
         }
     } else {
@@ -74,13 +74,13 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
         for chart in charts.iter() {
             let song = &songs[&chart.song_id.unwrap()];
             let song_id = chart.song_id.unwrap();
-            let path = song.library_dir(&config.library).join(&chart.filename);
+            let path = song.library_dir(&config.directory).join(&chart.filename);
 
             std::fs::remove_file(&path)?;
             db.remove_chart(chart.id.unwrap())?;
 
             if db.count_song_charts(song_id)? == 0 {
-                std::fs::remove_dir_all(song.library_dir(&config.library))?;
+                std::fs::remove_dir_all(song.library_dir(&config.directory))?;
                 db.remove_song(song_id)?;
             }
         }

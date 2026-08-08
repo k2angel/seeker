@@ -11,7 +11,7 @@ There is a configuration file left in `~/.config/seeker/config.json`
 
 ```
 {
-    "library": "<path to BMS library>",
-    "database": "<path to database file>"
+    "directory": "<path to BMS library>",
+    "library": "<path to database file>"
 }
 ```

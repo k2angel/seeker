@@ -5,7 +5,7 @@ use crate::database::Database;
 use crate::model::Config;
 
 pub fn run(config: &Config, args: ListArgs) -> Result<()> {
-    let db = Database::open(&config.database)?;
+    let db = Database::open(&config.library)?;
     db.create_schema()?;
 
     let expr = args.search.expr();
@@ -15,7 +15,7 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
 
         for song in songs.iter() {
             if args.path {
-                println!("{}", song.library_dir(&config.library).display())
+                println!("{}", song.library_dir(&config.directory).display())
             } else {
                 println!("{} - {}", song.artist, song.title);
             }
@@ -30,7 +30,7 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
             if args.path {
                 println!(
                     "{}",
-                    song.library_dir(&config.library)
+                    song.library_dir(&config.directory)
                         .join(&chart.filename)
                         .display()
                 );
