@@ -32,14 +32,6 @@
           fileset = lib.fileset.unions [
             (craneLib.fileset.commonCargoSources unfilteredRoot)
             (lib.fileset.fileFilter (file: file.hasExt "sql") unfilteredRoot)
-          ];
-        };
-
-        testSrc = lib.fileset.toSource {
-          root = unfilteredRoot;
-          fileset = lib.fileset.unions [
-            (craneLib.fileset.commonCargoSources unfilteredRoot)
-            (lib.fileset.fileFilter (file: file.hasExt "sql") unfilteredRoot)
             (lib.fileset.maybeMissing ./tests/data)
           ];
         };
@@ -47,29 +39,21 @@
         commonArgs = {
           inherit src;
           strictDeps = true;
-          buildInputs = with pkgs; [ sqlite ];
-          nativeBuildInputs = with pkgs; [ pkg-config ];
+          buildInputs = [ pkgs.sqlite ];
+          nativeBuildInputs = [ pkgs.pkg-config ];
         };
 
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-
-        myApp = craneLib.buildPackage (
+        myCrate = craneLib.buildPackage (
           commonArgs
           // {
-            inherit cargoArtifacts;
-            doCheck = false;
-          }
-        );
-
-        myAppTest = craneLib.cargoTest (
-          commonArgs
-          // {
-            inherit cargoArtifacts;
-            src = testSrc;
+            cargoArtifacts = craneLib.buildDepsOnly commonArgs;
           }
         );
       in
       {
+        checks = { inherit myCrate; };
+        packages.default = myCrate;
+
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             rustc
@@ -77,9 +61,6 @@
             sqlite
           ];
         };
-
-        packages.default = myApp;
-        checks = { inherit myAppTest; };
       }
     );
 }
