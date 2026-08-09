@@ -11,7 +11,7 @@ fn confirm_remove(count: usize) -> Result<()> {
     }
 
     print!(
-        "Really remove {} items from the library? (yes/No) > ",
+        "Really remove {} items from the library? (Yes/no) > ",
         count
     );
     io::stdout().flush()?;
@@ -20,8 +20,8 @@ fn confirm_remove(count: usize) -> Result<()> {
     io::stdin().read_line(&mut input)?;
 
     match input.trim().to_ascii_lowercase().as_str() {
-        "y" | "yes" => Ok(()),
-        _ => bail!("Cancelled"),
+        "n" | "no" => bail!("Cancelled"),
+        _ => Ok(()),
     }
 }
 
