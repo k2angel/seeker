@@ -183,8 +183,30 @@ impl Database {
 
         match songs.len() {
             0 => Ok(Vec::new()),
-            1 => Ok(songs),
-            _ => todo!(),
+            _ => {
+                let mut best: Option<(Song, f64)> = None;
+
+                for candidate in songs {
+                    let matches = song
+                        .wavs
+                        .iter()
+                        .filter(|wav| candidate.wavs.contains(wav))
+                        .count();
+
+                    let rate = matches as f64 / song.wavs.len() as f64;
+
+                    if rate >= 0.5
+                        && best
+                            .as_ref()
+                            .map(|(_, best_rate)| rate > *best_rate)
+                            .unwrap_or(true)
+                    {
+                        best = Some((candidate, rate));
+                    }
+                }
+
+                Ok(best.map(|(song, _)| vec![song]).unwrap_or_default())
+            }
         }
     }
 
