@@ -1,5 +1,6 @@
 use anyhow::{Result, bail};
 use fs_extra;
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
@@ -74,9 +75,14 @@ pub fn import_directory(
 ) -> Result<model::ImportResult> {
     let mut charts = Vec::new();
     let mut charts_due = Vec::new();
+    let mut chart_hashes = HashSet::new();
 
     for file in files {
         let chart = parse_chart(&file)?;
+
+        if !chart_hashes.insert(chart.sha256.clone()) {
+            continue;
+        }
 
         if !db.exists_chart(&chart.sha256)? {
             charts.push(chart);
