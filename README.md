@@ -1,12 +1,15 @@
 # seeker
+
 BMS library manager
 
 ## Usage
+
 ```
 seeker help
 ```
 
 ## Configuration
+
 There is a configuration file left in `~/.config/seeker/config.json`
 
 ```
@@ -15,3 +18,29 @@ There is a configuration file left in `~/.config/seeker/config.json`
     "library": "<path to database file>"
 }
 ```
+
+## Example
+
+```
+# Import directory
+seeker import [DIRECTORY]
+
+# Import archive file (supported zip, 7z or rar)
+seeker import [ARCHIVE]
+
+# List songs or charts
+seeker list [--song] [QUERY]
+
+# Remove songs or charts
+seeker remove [--song] [QUERY]
+```
+
+### Supported query
+ - AND, OR
+ - `title:xxx`, `artist:xxx`
+
+## Credits
+
+[rib2bit/BeMusicSeeker](https://tumblr.ribbit.xyz/post/129562866015/bemusicseeker-%E6%AD%A3%E5%BC%8F%E7%89%88%E3%82%92%E5%85%AC%E9%96%8B%E3%81%97%E3%81%BE%E3%81%97%E3%81%9F-v034) — respect
+
+[MikuroXia/bms-rs](https://github.com/MikuroXina/bms-rs) — BMS format parser
