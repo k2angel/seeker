@@ -1,4 +1,6 @@
 use anyhow::Result;
+use rusqlite;
+use rusqlite::OptionalExtension;
 use std::path::PathBuf;
 
 use crate::cli::SearchExpr;
@@ -53,37 +55,85 @@ impl Database {
     ) -> Result<()> {
         let wavs = serde_json::to_string(&chart.wavs)?;
         let bgas = serde_json::to_string(&chart.bgas)?;
+        let filename = chart.filename.to_string_lossy();
 
-        conn.execute(
-            "
-            INSERT INTO charts (
-                song_id,
-                genre,
-                title,
-                subtitle,
-                artist,
-                sub_artist,
-                wavs,
-                bgas,
-                filename,
-                md5,
-                sha256
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ",
-            (
-                &song_id,
-                &chart.genre,
-                &chart.title,
-                &chart.subtitle,
-                &chart.artist,
-                &chart.sub_artist,
-                &wavs,
-                &bgas,
-                &chart.filename.to_string_lossy(),
-                &chart.md5,
-                &chart.sha256,
-            ),
-        )?;
+        let chart_id = conn
+            .query_row(
+                "
+                SELECT id
+                FROM charts
+                WHERE song_id = ? AND filename = ?
+                ",
+                (&song_id, &filename),
+                |row| row.get::<_, i64>(0),
+            )
+            .optional()?;
+
+        match chart_id {
+            Some(chart_id) => {
+                conn.execute(
+                    "
+                    UPDATE charts
+                    SET
+                        genre = ?,
+                        title = ?,
+                        subtitle = ?,
+                        artist = ?,
+                        sub_artist = ?,
+                        wavs = ?,
+                        bgas = ?,
+                        md5 = ?,
+                        sha256 = ?
+                    WHERE id = ?
+                    ",
+                    (
+                        &chart_id,
+                        &chart.genre,
+                        &chart.title,
+                        &chart.subtitle,
+                        &chart.artist,
+                        &chart.sub_artist,
+                        &wavs,
+                        &bgas,
+                        &chart.md5,
+                        &chart.sha256,
+                    ),
+                )?;
+            }
+
+            None => {
+                conn.execute(
+                    "
+                    INSERT INTO charts (
+                        song_id,
+                        genre,
+                        title,
+                        subtitle,
+                        artist,
+                        sub_artist,
+                        wavs,
+                        bgas,
+                        filename,
+                        md5,
+                        sha256
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ",
+                    (
+                        &song_id,
+                        &chart.genre,
+                        &chart.title,
+                        &chart.subtitle,
+                        &chart.artist,
+                        &chart.sub_artist,
+                        &wavs,
+                        &bgas,
+                        &chart.filename.to_string_lossy(),
+                        &chart.md5,
+                        &chart.sha256,
+                    ),
+                )?;
+            }
+        }
 
         Ok(())
     }
