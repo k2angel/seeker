@@ -93,9 +93,10 @@ pub fn import_directory(
         }
 
         let songs = db.find_songs(&song)?;
+        let songs_len = songs.len();
         let tx = db.transaction()?;
 
-        let song_id = match songs.len() {
+        let song_id = match songs_len {
             0 => Database::insert_song(&tx, &song)?,
             1 => {
                 song = songs.into_iter().next().unwrap();
@@ -106,6 +107,10 @@ pub fn import_directory(
 
         for chart in &charts {
             Database::insert_chart(&tx, song_id, chart)?;
+        }
+
+        if songs_len != 0 {
+            Database::rebuild_song_resources(&tx, song_id)?;
         }
 
         copy_dir(root, &song.library_dir(library))?;

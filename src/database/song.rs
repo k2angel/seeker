@@ -1,6 +1,7 @@
 use anyhow::Result;
 use serde_json;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::path::PathBuf;
 
 use crate::cli::SearchExpr;
 use crate::database::{Database, search_condition};
@@ -51,6 +52,53 @@ impl Database {
         )?;
 
         Ok(conn.last_insert_rowid())
+    }
+
+    pub fn rebuild_song_resources(conn: &rusqlite::Transaction<'_>, song_id: i64) -> Result<()> {
+        let mut stmt = conn.prepare(
+            "
+            SELECT wavs, bgas
+            FROM charts
+            WHERE song_id = ?1
+            ",
+        )?;
+
+        let mut wavs = HashSet::new();
+        let mut bgas = HashSet::new();
+
+        let rows = stmt.query_map([song_id], |row| {
+            let wavs: String = row.get(0)?;
+            let bgas: String = row.get(1)?;
+
+            Ok((wavs, bgas))
+        })?;
+
+        for row in rows {
+            let (chart_wavs, chart_bgas) = row?;
+
+            for wav in serde_json::from_str::<Vec<PathBuf>>(&chart_wavs)? {
+                wavs.insert(wav);
+            }
+
+            for bga in serde_json::from_str::<Vec<PathBuf>>(&chart_bgas)? {
+                bgas.insert(bga);
+            }
+        }
+
+        let wavs = serde_json::to_string(&wavs.into_iter().collect::<Vec<_>>())?;
+        let bgas = serde_json::to_string(&bgas.into_iter().collect::<Vec<_>>())?;
+
+        conn.execute(
+            "
+            UPDATE songs
+            SET wavs = ?1,
+                bgas = ?2
+            WHERE id = ?3
+            ",
+            (&wavs, &bgas, &song_id),
+        )?;
+
+        Ok(())
     }
 
     pub fn detail_song(&self, song_id: i64) -> Result<Song> {
