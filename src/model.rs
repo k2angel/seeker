@@ -40,7 +40,7 @@ pub struct ChartBase<W, F> {
 
     pub filename: F,
 
-    pub md5: String,
+    pub md5: Option<String>,
     pub sha256: String,
 }
 

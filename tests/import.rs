@@ -69,7 +69,7 @@ fn parse_chart_test() {
     println!("{:#?}", chart);
 
     assert!(!chart.title.is_empty());
-    assert!(!chart.md5.is_empty());
+    assert!(!chart.md5.expect("REASON").is_empty());
     assert!(!chart.sha256.is_empty());
 
     assert_eq!(chart.title, "code:0000");

@@ -48,7 +48,7 @@ pub fn find_song_dirs(root: &Path) -> Vec<(PathBuf, Vec<PathBuf>)> {
                     .is_some_and(|ext| {
                         matches!(
                             ext.to_ascii_lowercase().as_str(),
-                            "bms" | "bme" | "bml" | "pms" | "bmw"
+                            "bms" | "bme" | "bml" | "pms" | "bmw" | "bmson"
                         )
                     })
             })
