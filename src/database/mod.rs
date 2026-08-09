@@ -57,11 +57,19 @@ fn search_condition(expr: &SearchExpr, all_fields: &[&str], params: &mut Vec<Str
                         }
 
                         SearchField::Artist => {
-                            format!("artist LIKE ?{n}")
+                            if all_fields.contains(&"sub_artist") {
+                                format!("artist || CASE WHEN sub_artist IS NOT NULL THEN ' / ' || sub_artist ELSE '' END LIKE ?{n}")
+                            } else {
+                                format!("artist LIKE ?{n}")
+                            }
                         }
 
                         SearchField::Title => {
-                            format!("title LIKE ?{n}")
+                            if all_fields.contains(&"subtitle") {
+                                format!("title || CASE WHEN subtitle IS NOT NULL THEN ' ' || subtitle ELSE '' END LIKE ?{n}")
+                            } else {
+                                format!("title LIKE ?{n}")
+                            }
                         }
                     }
                 })
