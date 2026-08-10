@@ -62,11 +62,7 @@ impl Song {
                 .to_string()
         }
 
-        format!(
-            "[{}] {}",
-            sanitize_filename(&self.artist),
-            sanitize_filename(&self.title)
-        )
+        sanitize_filename(&format!("[{}] {}", self.artist, self.title))
     }
 
     pub fn library_dir(&self, library: &Path) -> PathBuf {
