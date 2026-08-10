@@ -7,6 +7,7 @@ use seeker::cli::{SearchExpr, SearchTerm};
 use seeker::database::Database;
 use seeker::import::parser;
 use seeker::import::{find_song_dirs, import_directory};
+use seeker::model;
 
 #[test]
 fn import_directory_test() -> Result<()> {
@@ -42,15 +43,15 @@ fn import_chart_test() -> Result<()> {
         import_directory(&mut db, &library.path(), &directory, &files)?;
     }
 
-    let song = db.detail_song(1)?;
+    let song = model::Song::try_from(db.detail_song(1)?)?;
     let expr = &SearchExpr::And(vec![SearchTerm::parse("私の狂気")]);
     let charts = db.search_charts(Some(expr))?;
 
-    for chart in charts.iter() {
+    for chart in charts {
         let path = song.library_dir(&library.path()).join(&chart.filename);
 
         std::fs::remove_file(&path)?;
-        db.remove_chart(chart.id.unwrap())?;
+        db.remove_chart(chart.id)?;
     }
 
     for (directory, files) in find_song_dirs(Path::new("tests/data/hitsugi")) {

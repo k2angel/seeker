@@ -98,24 +98,27 @@ pub fn import_directory(
             bail!("There may be multiple music tracks in the directory.");
         }
 
-        let songs = db.find_songs(&song)?;
-        let songs_len = songs.len();
+        let result = db.find_song(&song)?;
         let tx = db.transaction()?;
 
-        let song_id = match songs_len {
-            0 => Database::insert_song(&tx, &song)?,
-            1 => {
-                song = songs.into_iter().next().unwrap();
-                song.id.unwrap()
+        let (song_id, exists) = match result {
+            None => (Database::insert_song(&tx, &song)?, false),
+            Some(result) => {
+                song = model::Song {
+                    title: result.title,
+                    artist: result.artist,
+                    ..song
+                };
+
+                (result.id, true)
             }
-            _ => todo!(),
         };
 
         for chart in &charts {
             Database::insert_chart(&tx, song_id, chart)?;
         }
 
-        if songs_len != 0 {
+        if exists {
             Database::rebuild_song_resources(&tx, song_id)?;
         }
 

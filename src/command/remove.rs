@@ -3,7 +3,8 @@ use std::io::{self, Write};
 
 use crate::cli::RemoveArgs;
 use crate::database::Database;
-use crate::model::Config;
+use crate::model::{Config, Song};
+use crate::utils;
 
 fn confirm_remove(count: usize) -> Result<()> {
     if count == 0 {
@@ -40,16 +41,19 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
 
         confirm_remove(songs.len())?;
 
-        for song in songs.iter() {
+        for song_row in songs {
+            let song_id = song_row.id;
+            let song = Song::try_from(song_row)?;
+
             std::fs::remove_dir_all(song.library_dir(&config.directory))?;
-            db.remove_song(song.id.unwrap())?;
+            db.remove_song(song_id)?;
         }
     } else {
         let charts = db.search_charts(expr.as_ref())?;
-        let songs = db.detail_songs(charts.iter().filter_map(|c| c.song_id))?;
+        let songs = utils::song_map(db.detail_songs(charts.iter().map(|c| c.song_id))?)?;
 
         for chart in charts.iter() {
-            let song = &songs[&chart.song_id.unwrap()];
+            let song = &songs[&chart.song_id];
 
             println!(
                 "{}{} - {} - {}{}",
@@ -72,12 +76,12 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
         confirm_remove(charts.len())?;
 
         for chart in charts.iter() {
-            let song = &songs[&chart.song_id.unwrap()];
-            let song_id = chart.song_id.unwrap();
+            let song = &songs[&chart.song_id];
+            let song_id = chart.song_id;
             let path = song.library_dir(&config.directory).join(&chart.filename);
 
             std::fs::remove_file(&path)?;
-            db.remove_chart(chart.id.unwrap())?;
+            db.remove_chart(chart.id)?;
 
             if db.count_song_charts(song_id)? == 0 {
                 std::fs::remove_dir_all(song.library_dir(&config.directory))?;

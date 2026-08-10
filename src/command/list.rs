@@ -2,7 +2,8 @@ use anyhow::Result;
 
 use crate::cli::ListArgs;
 use crate::database::Database;
-use crate::model::Config;
+use crate::model::{Config, Song};
+use crate::utils;
 
 pub fn run(config: &Config, args: ListArgs) -> Result<()> {
     let db = Database::open(&config.library)?;
@@ -13,7 +14,8 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
     if args.song {
         let songs = db.search_songs(expr.as_ref())?;
 
-        for song in songs.iter() {
+        for song_row in songs {
+            let song = Song::try_from(song_row)?;
             if args.path {
                 println!("{}", song.library_dir(&config.directory).display())
             } else {
@@ -22,10 +24,10 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
         }
     } else {
         let charts = db.search_charts(expr.as_ref())?;
-        let songs = db.detail_songs(charts.iter().filter_map(|c| c.song_id))?;
+        let songs = utils::song_map(db.detail_songs(charts.iter().map(|c| c.song_id))?)?;
 
         for chart in charts.iter() {
-            let song = &songs[&chart.song_id.unwrap()];
+            let song = &songs[&chart.song_id];
 
             if args.path {
                 println!(

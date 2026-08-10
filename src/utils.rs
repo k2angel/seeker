@@ -1,9 +1,9 @@
+use anyhow::Result;
 use regex::Regex;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
 
-use crate::model::Song;
+use crate::model::{Song, SongRow};
 
 type Token = (String, bool);
 
@@ -148,29 +148,12 @@ where
     untokenize(&result)
 }
 
-fn sanitize_filename(s: &str) -> String {
-    s.chars()
-        .map(|c| match c {
-            '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*' => '_',
-            c if c.is_control() => '_',
-            _ => c,
+pub fn song_map(rows: Vec<SongRow>) -> Result<HashMap<i64, Song>> {
+    rows.into_iter()
+        .map(|row| {
+            let id = row.id;
+            let song = Song::try_from(row)?;
+            Ok((id, song))
         })
-        .collect::<String>()
-        .trim()
-        .trim_end_matches('.')
-        .to_string()
-}
-
-impl Song {
-    pub fn directory_name(&self) -> String {
-        format!(
-            "[{}] {}",
-            sanitize_filename(&self.artist),
-            sanitize_filename(&self.title)
-        )
-    }
-
-    pub fn library_dir(&self, library: &Path) -> PathBuf {
-        library.join(self.directory_name())
-    }
+        .collect()
 }

@@ -1,38 +1,12 @@
 use anyhow::Result;
 use serde_json;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::path::PathBuf;
 
 use crate::cli::SearchExpr;
 use crate::database::{Database, search_condition};
 use crate::model::{Song, SongRow};
 use crate::utils;
-
-impl SongRow {
-    pub fn from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<Self> {
-        Ok(Self {
-            id: row.get(0)?,
-            title: row.get(1)?,
-            artist: row.get(2)?,
-            wavs: row.get(3)?,
-            bgas: row.get(4)?,
-        })
-    }
-}
-
-impl TryFrom<SongRow> for Song {
-    type Error = anyhow::Error;
-
-    fn try_from(row: SongRow) -> Result<Self> {
-        Ok(Self {
-            id: row.id,
-            title: row.title,
-            artist: row.artist,
-            wavs: serde_json::from_str(&row.wavs)?,
-            bgas: serde_json::from_str(&row.bgas)?,
-        })
-    }
-}
 
 impl Database {
     pub fn insert_song(conn: &rusqlite::Transaction<'_>, song: &Song) -> Result<i64> {
@@ -101,7 +75,7 @@ impl Database {
         Ok(())
     }
 
-    pub fn detail_song(&self, song_id: i64) -> Result<Song> {
+    pub fn detail_song(&self, song_id: i64) -> Result<SongRow> {
         let mut stmt = self.conn.prepare(
             "
             SELECT *
@@ -110,20 +84,14 @@ impl Database {
             ",
         )?;
 
-        let row = stmt.query_row([song_id], SongRow::from_row)?;
-
-        Song::try_from(row)
+        Ok(stmt.query_row([song_id], SongRow::from_row)?)
     }
 
-    pub fn detail_songs<I>(&self, song_ids: I) -> Result<HashMap<i64, Song>>
+    pub fn detail_songs<I>(&self, song_ids: I) -> Result<Vec<SongRow>>
     where
         I: IntoIterator<Item = i64>,
     {
         let song_ids: Vec<i64> = song_ids.into_iter().collect();
-
-        if song_ids.is_empty() {
-            return Ok(HashMap::new());
-        }
 
         let placeholders = std::iter::repeat_n("?", song_ids.len())
             .collect::<Vec<_>>()
@@ -145,17 +113,10 @@ impl Database {
             SongRow::from_row,
         )?;
 
-        let songs = rows
-            .map(|row| {
-                let song = Song::try_from(row?)?;
-                Ok((song.id.unwrap(), song))
-            })
-            .collect::<Result<HashMap<_, _>>>()?;
-
-        Ok(songs)
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
 
-    pub fn find_songs(&self, song: &Song) -> Result<Vec<Song>> {
+    pub fn find_song(&self, song: &Song) -> Result<Option<SongRow>> {
         let rows: Vec<SongRow> = {
             let title = format!("{}%", utils::tokenize(&song.title)[0].0);
             let artist = format!("{}%", utils::tokenize(&song.artist)[0].0);
@@ -175,23 +136,14 @@ impl Database {
             rows.collect::<rusqlite::Result<_>>()?
         };
 
-        let songs = rows
-            .into_iter()
-            .map(Song::try_from)
-            .collect::<Result<Vec<_>>>()?;
-
-        match songs.len() {
-            0 => Ok(Vec::new()),
+        Ok(match rows.len() {
+            0 => None,
             _ => {
-                let mut best: Option<(Song, f64)> = None;
+                let mut best: Option<(SongRow, f64)> = None;
 
-                for candidate in songs {
-                    let matches = song
-                        .wavs
-                        .iter()
-                        .filter(|wav| candidate.wavs.contains(wav))
-                        .count();
-
+                for row in rows {
+                    let wavs = serde_json::from_str::<Vec<PathBuf>>(&row.wavs)?;
+                    let matches = song.wavs.iter().filter(|wav| wavs.contains(wav)).count();
                     let rate = matches as f64 / song.wavs.len() as f64;
 
                     if rate >= 0.5
@@ -200,16 +152,16 @@ impl Database {
                             .map(|(_, best_rate)| rate > *best_rate)
                             .unwrap_or(true)
                     {
-                        best = Some((candidate, rate));
+                        best = Some((row, rate));
                     }
                 }
 
-                Ok(best.map(|(song, _)| vec![song]).unwrap_or_default())
+                best.map(|(row, _)| row)
             }
-        }
+        })
     }
 
-    pub fn search_songs(&self, expr: Option<&SearchExpr>) -> Result<Vec<Song>> {
+    pub fn search_songs(&self, expr: Option<&SearchExpr>) -> Result<Vec<SongRow>> {
         let mut params = Vec::new();
 
         let sql = if let Some(expr) = &expr {
@@ -235,7 +187,7 @@ impl Database {
 
         let mut stmt = self.conn.prepare(&sql)?;
 
-        let rows: Vec<SongRow> = match expr {
+        Ok(match expr {
             Some(_) => {
                 let params: Vec<&dyn rusqlite::ToSql> = params
                     .iter()
@@ -250,14 +202,7 @@ impl Database {
                 let rows = stmt.query_map([], SongRow::from_row)?;
                 rows.collect::<rusqlite::Result<_>>()?
             }
-        };
-
-        let songs = rows
-            .into_iter()
-            .map(Song::try_from)
-            .collect::<Result<Vec<_>>>()?;
-
-        Ok(songs)
+        })
     }
 
     pub fn remove_song(&self, song_id: i64) -> Result<()> {

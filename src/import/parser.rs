@@ -79,9 +79,6 @@ pub fn parse_chart(path: &Path) -> Result<Chart> {
     let sub_artist = (!sub_artist.is_empty()).then_some(sub_artist);
 
     Ok(Chart {
-        id: None,
-        song_id: None,
-
         genre,
         title,
         subtitle,
@@ -107,7 +104,6 @@ pub fn build_song(charts: &[Chart]) -> Song {
     bgas_sort.sort();
 
     Song {
-        id: None,
         title: utils::common_prefix(charts.iter().map(|c| c.title.as_str())),
         artist: utils::common_prefix(charts.iter().map(|c| c.artist.as_str())),
 
