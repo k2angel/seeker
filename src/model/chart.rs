@@ -42,18 +42,18 @@ pub struct ChartRow {
 impl ChartRow {
     pub fn from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<Self> {
         Ok(Self {
-            id: row.get(0)?,
-            song_id: row.get(1)?,
-            genre: row.get(2)?,
-            title: row.get(3)?,
-            subtitle: row.get(4)?,
-            artist: row.get(5)?,
-            sub_artist: row.get(6)?,
-            wavs: row.get(7)?,
-            bgas: row.get(8)?,
-            filename: row.get(9)?,
-            md5: row.get(10)?,
-            sha256: row.get(11)?,
+            id: row.get("id")?,
+            song_id: row.get("song_id")?,
+            genre: row.get("genre")?,
+            title: row.get("title")?,
+            subtitle: row.get("subtitle")?,
+            artist: row.get("artist")?,
+            sub_artist: row.get("sub_artist")?,
+            wavs: row.get("wavs")?,
+            bgas: row.get("bgas")?,
+            filename: row.get("filename")?,
+            md5: row.get("md5")?,
+            sha256: row.get("sha256")?,
         })
     }
 }

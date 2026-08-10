@@ -25,11 +25,11 @@ pub struct SongRow {
 impl SongRow {
     pub fn from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<Self> {
         Ok(Self {
-            id: row.get(0)?,
-            title: row.get(1)?,
-            artist: row.get(2)?,
-            wavs: row.get(3)?,
-            bgas: row.get(4)?,
+            id: row.get("id")?,
+            title: row.get("title")?,
+            artist: row.get("artist")?,
+            wavs: row.get("wavs")?,
+            bgas: row.get("bgas")?,
         })
     }
 }
