@@ -2,14 +2,27 @@ use anyhow::Result;
 use std::path::Path;
 use tempfile::tempdir;
 
+use crate::cli::ImportArgs;
 use crate::database::Database;
 use crate::import::{extract_archive, find_song_dirs, import_directory};
 use crate::model::Config;
 
-pub fn run(config: &Config, path: &Path) -> Result<()> {
+pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     let mut db = Database::open(&config.library)?;
     db.create_schema()?;
 
+    for (i, p) in args.path.clone().into_iter().enumerate() {
+        main(&mut db, config, &p, args.r#move)?;
+
+        if i + 1 < args.path.len() {
+            println!();
+        }
+    }
+
+    Ok(())
+}
+
+fn main(db: &mut Database, config: &Config, path: &Path, r#move: bool) -> Result<()> {
     let tmp;
     let root = if path.is_dir() {
         path
@@ -28,7 +41,7 @@ pub fn run(config: &Config, path: &Path) -> Result<()> {
             files.len()
         );
 
-        let result = import_directory(&mut db, &config.directory, &directory, &files)?;
+        let result = import_directory(db, &config.directory, &directory, &files, r#move)?;
 
         println!(
             "\x1b[33m{} - {}\x1b[m",

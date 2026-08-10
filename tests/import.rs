@@ -17,7 +17,7 @@ fn import_directory_test() -> Result<()> {
     db.create_schema()?;
 
     for (directory, files) in find_song_dirs(Path::new("tests/data/hitsugi")) {
-        import_directory(&mut db, &library.path(), &directory, &files)?;
+        import_directory(&mut db, &library.path(), &directory, &files, false)?;
     }
 
     assert_eq!(db.count_songs(None)?, 1);
@@ -40,7 +40,7 @@ fn import_chart_test() -> Result<()> {
     db.create_schema()?;
 
     for (directory, files) in find_song_dirs(Path::new("tests/data/hitsugi")) {
-        import_directory(&mut db, &library.path(), &directory, &files)?;
+        import_directory(&mut db, &library.path(), &directory, &files, false)?;
     }
 
     let song = model::Song::try_from(db.detail_song(1)?)?;
@@ -55,7 +55,7 @@ fn import_chart_test() -> Result<()> {
     }
 
     for (directory, files) in find_song_dirs(Path::new("tests/data/hitsugi")) {
-        import_directory(&mut db, &library.path(), &directory, &files)?;
+        import_directory(&mut db, &library.path(), &directory, &files, false)?;
     }
 
     assert_eq!(db.count_songs(None)?, 1);

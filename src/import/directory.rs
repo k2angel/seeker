@@ -9,7 +9,7 @@ use crate::database::Database;
 use crate::import::parser::{build_song, parse_chart};
 use crate::model;
 
-fn copy_dir(src: &Path, dst: &Path) -> Result<()> {
+fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
     let options = fs_extra::dir::CopyOptions {
         copy_inside: true,
         overwrite: true,
@@ -21,9 +21,17 @@ fn copy_dir(src: &Path, dst: &Path) -> Result<()> {
             .map(|entry| entry.map(|e| e.path()))
             .collect::<std::io::Result<_>>()?;
 
-        fs_extra::copy_items(&entries, dst, &options)?;
+        if move_files {
+            fs_extra::move_items(&entries, dst, &options)?;
+        } else {
+            fs_extra::copy_items(&entries, dst, &options)?;
+        }
     } else {
-        fs_extra::dir::copy(src, dst, &options)?;
+        if move_files {
+            fs_extra::dir::move_dir(src, dst, &options)?;
+        } else {
+            fs_extra::dir::copy(src, dst, &options)?;
+        }
     }
 
     Ok(())
@@ -72,6 +80,7 @@ pub fn import_directory(
     library: &Path,
     root: &Path,
     files: &[PathBuf],
+    move_files: bool,
 ) -> Result<model::ImportResult> {
     let mut charts = Vec::new();
     let mut charts_due = Vec::new();
@@ -122,7 +131,7 @@ pub fn import_directory(
             Database::rebuild_song_resources(&tx, song_id)?;
         }
 
-        copy_dir(root, &song.library_dir(library))?;
+        transfer_dir(root, &song.library_dir(library), move_files)?;
         tx.commit()?;
 
         song

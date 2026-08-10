@@ -11,10 +11,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Command {
     /// Import BMS files into the libarry.
-    Import {
-        /// Files or directories to import.
-        path: Vec<PathBuf>,
-    },
+    Import(ImportArgs),
 
     /// List songs or charts.
     #[command(visible_alias = "ls")]
@@ -26,6 +23,16 @@ pub enum Command {
 
     /// Show library statics.
     Stats(StatsArgs),
+}
+
+#[derive(Args)]
+pub struct ImportArgs {
+    /// Files or directories to import.
+    pub path: Vec<PathBuf>,
+
+    /// Move files.
+    #[arg(short, long)]
+    pub r#move: bool,
 }
 
 #[derive(Args)]
