@@ -43,21 +43,36 @@
           nativeBuildInputs = [ pkgs.pkg-config ];
         };
 
+        cargoArtifacts = craneLib.buildDepsOnly (
+          commonArgs
+          // {
+            pname = "mycrate-deps";
+          }
+        );
+
+        myCrateClippy = craneLib.cargoClippy (
+          commonArgs
+          // {
+            inherit cargoArtifacts;
+          }
+        );
+
         myCrate = craneLib.buildPackage (
           commonArgs
           // {
-            cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+            inherit cargoArtifacts;
           }
         );
       in
       {
-        checks = { inherit myCrate; };
+        checks = { inherit myCrate myCrateClippy; };
         packages.default = myCrate;
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             rustc
             cargo
+            clippy
             sqlite
           ];
         };
