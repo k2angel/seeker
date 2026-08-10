@@ -141,9 +141,9 @@ impl Database {
     pub fn search_charts(&self, expr: Option<&SearchExpr>) -> Result<Vec<Chart>> {
         let mut params = Vec::new();
 
-        let sql = if expr.is_some() {
+        let sql = if let Some(expr) = &expr {
             let condition = search_condition(
-                expr.as_ref().unwrap(),
+                expr,
                 &["title", "subtitle", "artist", "sub_artist"],
                 &mut params,
             );
@@ -203,9 +203,9 @@ impl Database {
     pub fn count_charts(&self, expr: Option<&SearchExpr>) -> Result<i64> {
         let mut params = Vec::new();
 
-        let sql = if expr.is_some() {
+        let sql = if let Some(expr) = &expr {
             let condition = search_condition(
-                expr.as_ref().unwrap(),
+                expr,
                 &["title", "subtitle", "artist", "sub_artist"],
                 &mut params,
             );

@@ -86,7 +86,7 @@ pub fn common_prefix<'a, I>(strings: I) -> String
 where
     I: IntoIterator<Item = &'a str>,
 {
-    let tokenized: Vec<Vec<Token>> = strings.into_iter().map(|s| tokenize(s)).collect();
+    let tokenized: Vec<Vec<Token>> = strings.into_iter().map(tokenize).collect();
 
     if tokenized.is_empty() {
         return String::new();
@@ -148,7 +148,7 @@ where
     untokenize(&result)
 }
 
-fn sanitize_filename(s: &String) -> String {
+fn sanitize_filename(s: &str) -> String {
     s.chars()
         .map(|c| match c {
             '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*' => '_',

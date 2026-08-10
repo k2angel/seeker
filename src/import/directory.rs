@@ -7,7 +7,7 @@ use walkdir::WalkDir;
 
 use crate::database::Database;
 use crate::import::parser::{build_song, parse_chart};
-use crate::{model, utils};
+use crate::model;
 
 fn copy_dir(src: &Path, dst: &Path) -> Result<()> {
     let options = fs_extra::dir::CopyOptions {
@@ -70,7 +70,7 @@ pub fn find_song_dirs(root: &Path) -> Vec<(PathBuf, Vec<PathBuf>)> {
 pub fn import_directory(
     db: &mut Database,
     library: &Path,
-    root: &PathBuf,
+    root: &Path,
     files: &[PathBuf],
 ) -> Result<model::ImportResult> {
     let mut charts = Vec::new();
@@ -78,7 +78,7 @@ pub fn import_directory(
     let mut chart_hashes = HashSet::new();
 
     for file in files {
-        let chart = parse_chart(&file)?;
+        let chart = parse_chart(file)?;
 
         if !chart_hashes.insert(chart.sha256.clone()) {
             continue;

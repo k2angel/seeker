@@ -112,7 +112,7 @@ impl Database {
 
         let row = stmt.query_row([song_id], SongRow::from_row)?;
 
-        Ok(Song::try_from(row)?)
+        Song::try_from(row)
     }
 
     pub fn detail_songs<I>(&self, song_ids: I) -> Result<HashMap<i64, Song>>
@@ -125,8 +125,7 @@ impl Database {
             return Ok(HashMap::new());
         }
 
-        let placeholders = std::iter::repeat("?")
-            .take(song_ids.len())
+        let placeholders = std::iter::repeat_n("?", song_ids.len())
             .collect::<Vec<_>>()
             .join(",");
 
@@ -213,9 +212,8 @@ impl Database {
     pub fn search_songs(&self, expr: Option<&SearchExpr>) -> Result<Vec<Song>> {
         let mut params = Vec::new();
 
-        let sql = if expr.is_some() {
-            let condition =
-                search_condition(expr.as_ref().unwrap(), &["title", "artist"], &mut params);
+        let sql = if let Some(expr) = &expr {
+            let condition = search_condition(expr, &["title", "artist"], &mut params);
 
             format!(
                 "
@@ -272,9 +270,8 @@ impl Database {
     pub fn count_songs(&self, expr: Option<&SearchExpr>) -> Result<i64> {
         let mut params = Vec::new();
 
-        let sql = if expr.is_some() {
-            let condition =
-                search_condition(expr.as_ref().unwrap(), &["title", "artist"], &mut params);
+        let sql = if let Some(expr) = &expr {
+            let condition = search_condition(expr, &["title", "artist"], &mut params);
 
             format!("SELECT COUNT(*) FROM songs WHERE {}", condition)
         } else {

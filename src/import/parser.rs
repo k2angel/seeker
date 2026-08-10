@@ -2,7 +2,7 @@ use anyhow::Result;
 use bms_rs::bms::{BmsOutput, default_config, parse_bms};
 use bms_rs::bmson::{BmsonParseOutput, parse_bmson};
 use encoding_rs::SHIFT_JIS;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -17,7 +17,7 @@ pub fn parse_chart(path: &Path) -> Result<Chart> {
         if path.extension().unwrap() == "bmson" {
             let source = std::str::from_utf8(&bytes)?;
 
-            let BmsonParseOutput { bmson, errors } = parse_bmson(source);
+            let BmsonParseOutput { bmson, errors: _ } = parse_bmson(source);
             let bmson = bmson.expect("must be parsed");
 
             let wavs: HashSet<_> = bmson
@@ -49,7 +49,7 @@ pub fn parse_chart(path: &Path) -> Result<Chart> {
         } else {
             let (source, _, _) = SHIFT_JIS.decode(&bytes);
 
-            let BmsOutput { bms, warnings } = parse_bms(source.as_ref(), default_config());
+            let BmsOutput { bms, warnings: _ } = parse_bms(source.as_ref(), default_config());
             let bms = bms.expect("must be parsed");
 
             let wavs: HashSet<_> = bms.wav.wav_files.values().cloned().collect();
