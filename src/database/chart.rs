@@ -1,6 +1,6 @@
 use anyhow::Result;
 use rusqlite;
-use rusqlite::OptionalExtension;
+use rusqlite::{OptionalExtension, params};
 
 use crate::cli::SearchExpr;
 use crate::database::{Database, search_condition};
@@ -45,7 +45,7 @@ impl Database {
                         sha256 = ?
                     WHERE id = ?
                     ",
-                    (
+                    params![
                         &chart_id,
                         &chart.genre,
                         &chart.title,
@@ -56,7 +56,7 @@ impl Database {
                         &bgas,
                         &chart.md5,
                         &chart.sha256,
-                    ),
+                    ],
                 )?;
             }
 
@@ -77,7 +77,7 @@ impl Database {
                         sha256
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ",
-                    (
+                    params![
                         &song_id,
                         &chart.genre,
                         &chart.title,
@@ -89,7 +89,7 @@ impl Database {
                         &chart.filename.to_string_lossy(),
                         &chart.md5,
                         &chart.sha256,
-                    ),
+                    ],
                 )?;
             }
         }

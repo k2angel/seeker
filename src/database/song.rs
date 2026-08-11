@@ -1,4 +1,5 @@
 use anyhow::Result;
+use rusqlite::params;
 use serde_json;
 use std::collections::HashSet;
 use std::path::PathBuf;
@@ -22,7 +23,7 @@ impl Database {
                 bgas
             ) VALUES (?, ?, ?, ?)
             ",
-            (&song.title, &song.artist, &wavs, &bgas),
+            params![&song.title, &song.artist, &wavs, &bgas],
         )?;
 
         Ok(conn.last_insert_rowid())
