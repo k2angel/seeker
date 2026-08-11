@@ -46,7 +46,6 @@ impl Database {
                     WHERE id = ?
                     ",
                     params![
-                        &chart_id,
                         &chart.genre,
                         &chart.title,
                         &chart.subtitle,
@@ -56,6 +55,7 @@ impl Database {
                         &bgas,
                         &chart.md5,
                         &chart.sha256,
+                        &chart_id,
                     ],
                 )?;
             }
