@@ -173,7 +173,7 @@ impl Database {
                 SELECT *
                 FROM songs
                 WHERE {}
-                ORDER BY title;
+                ORDER BY artist, title;
                 ",
                 condition
             )
@@ -181,7 +181,7 @@ impl Database {
             "
             SELECT *
             FROM songs
-            ORDER BY title;
+            ORDER BY artist, title;
             "
             .to_string()
         };
