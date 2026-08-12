@@ -87,7 +87,13 @@ pub fn import_directory(
     let mut chart_hashes = HashSet::new();
 
     for file in files {
-        let chart = parse_chart(file)?;
+        let chart = match parse_chart(file) {
+            Ok(chart) => chart,
+            Err(err) => {
+                eprintln!("Warning: failed to parse {}: {}", file.display(), err);
+                continue;
+            }
+        };
 
         if !chart_hashes.insert(chart.sha256.clone()) {
             continue;
