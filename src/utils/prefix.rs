@@ -143,9 +143,8 @@ where
         let best_token = best_token.unwrap();
 
         let matching_tokens: Vec<&Token> = tokens
-            .iter()
-            .copied()
-            .filter(|token| token.value.starts_with(&best_token.value))
+            .into_iter()
+            .filter(|token| token.value == best_token.value)
             .collect();
 
         // [Space, Split] => Split
