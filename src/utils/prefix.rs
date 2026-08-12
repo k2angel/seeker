@@ -118,11 +118,11 @@ where
             }
         }
 
+        // 完全一致では半数未満なので、前方一致にフォールバック
         if best_count * 2 <= total {
             best_token = None;
             best_count = 0;
 
-            // 完全一致では半数未満なので、前方一致にフォールバック
             for token in &tokens {
                 let count = tokens
                     .iter()
@@ -136,7 +136,7 @@ where
             }
         }
 
-        if best_count * 2 < total {
+        if best_count * 2 < total && !result.is_empty() {
             break;
         }
 
