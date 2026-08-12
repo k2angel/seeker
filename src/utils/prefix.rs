@@ -113,12 +113,29 @@ where
                 .count();
 
             if count > best_count {
-                best_token = Some(token);
+                best_token = Some(*token);
                 best_count = count;
             }
         }
 
-        // 最頻出Tokenが過半数未満なら終了
+        if best_count * 2 <= total {
+            best_token = None;
+            best_count = 0;
+
+            // 完全一致では半数未満なので、前方一致にフォールバック
+            for token in &tokens {
+                let count = tokens
+                    .iter()
+                    .filter(|other| other.value.starts_with(&token.value))
+                    .count();
+
+                if count > best_count {
+                    best_token = Some(*token);
+                    best_count = count;
+                }
+            }
+        }
+
         if best_count * 2 < total {
             break;
         }
@@ -126,8 +143,9 @@ where
         let best_token = best_token.unwrap();
 
         let matching_tokens: Vec<&Token> = tokens
-            .into_iter()
-            .filter(|token| token.value == best_token.value)
+            .iter()
+            .copied()
+            .filter(|token| token.value.starts_with(&best_token.value))
             .collect();
 
         // [Space, Split] => Split

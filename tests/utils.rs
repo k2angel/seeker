@@ -65,6 +65,23 @@ fn common_prefix_test() {
         "Xiper 2026[SP NORMAL]",
     ];
 
+    let titles4 = [
+        "クレイジー土下座.smd (編集用)",
+        "クレイジー土下座.smdが\u{3000}夢\u{3000}の\u{3000}よ\u{3000}う\u{3000}ソ\u{3000}フ\u{3000}ラ\u{3000}ン E D I  T",
+        "クレイジー土下座.smdが\u{3000}夢\u{3000}の\u{3000}よ\u{3000}う",
+        "クレイジー土下座.smd (ふつう)",
+        "クレイジー土下座.smd (スコアアタック用)",
+        "クソクソクソクソクソクソイジー土下座.smd",
+        "クレイジー土下座.smd (長い)",
+        "クレイジー土下座.smd (肉)",
+        "ロングクレイジー土下座.longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglongllonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglongoncmd\u{3000}夢\u{3000}の\u{3000}よ\u{3000}う",
+        "ロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングクレイジー土下座.smdが\u{3000}夢\u{3000}の\u{3000}よ\u{3000}う",
+        "ロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングロングクレイジー土下座.smdが\u{3000}夢\u{3000}の\u{3000}よ\u{3000}う",
+        "クレイジー土下座.smd (くそ長い)",
+        "夢\u{3000}の\u{3000}よ\u{3000}う な\u{3000}ク\u{3000}ソ\u{3000}土\u{3000}下\u{3000}座",
+        "夢\u{3000}の\u{3000}よ\u{3000}う な\u{3000}ク\u{3000}ソ\u{3000}土\u{3000}下\u{3000}座\u{3000}ソ\u{3000}フ\u{3000}ラ\u{3000}ン\u{3000}ス\u{3000}ペ\u{3000}シ\u{3000}ャ\u{3000}ル",
+    ];
+
     let artists = [
         "plastic feat.サキト",
         "plastic feat.サキト / obj:夢瑠",
@@ -109,6 +126,7 @@ fn common_prefix_test() {
         "Witch of Dimension ～次元の魔女～"
     );
     assert_eq!(utils::common_prefix(titles3), "Xiper 2026");
+    assert_eq!(utils::common_prefix(titles4), "クレイジー土下座.smd");
     assert_eq!(utils::common_prefix(artists), "plastic feat.サキト");
     assert_eq!(utils::common_prefix(artists2), "-45/わなな・BANI");
 }
