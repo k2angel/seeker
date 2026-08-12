@@ -4,12 +4,12 @@ use crate::model::{Separator, Token};
 
 pub fn tokenize(s: &str) -> Vec<Token> {
     let re = Regex::new(r"\[\S*\]|\(\S*\)|-[^-]+-|\/").unwrap();
-    let re_playside = Regex::new(r"[\[(-](SP|sp|DP|dp)$").unwrap();
+    let re_playside = Regex::new(r"[\[(-](sp|dp|\d+keys?)$").unwrap();
 
     let words_list: Vec<Vec<&str>> = s
         .split_whitespace()
         .map(|word| {
-            let word = if let Some(m) = re_playside.find(word) {
+            let word = if let Some(m) = re_playside.find(&word.to_lowercase()) {
                 &word[..m.start()]
             } else {
                 word
