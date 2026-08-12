@@ -119,8 +119,8 @@ impl Database {
 
     pub fn find_song(&self, song: &Song) -> Result<Option<SongRow>> {
         let rows: Vec<SongRow> = {
-            let title = format!("{}%", utils::tokenize(&song.title)[0].0);
-            let artist = format!("{}%", utils::tokenize(&song.artist)[0].0);
+            let title = format!("{}%", utils::tokenize(&song.title)[0].value);
+            let artist = format!("{}%", utils::tokenize(&song.artist)[0].value);
 
             let mut stmt = self.conn.prepare(
                 "

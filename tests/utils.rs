@@ -1,3 +1,4 @@
+use seeker::model::{Separator, Token};
 use seeker::utils;
 
 #[test]
@@ -7,10 +8,22 @@ fn tokenize_test() {
     assert_eq!(
         utils::tokenize(input),
         vec![
-            ("foo".to_string(), true),
-            ("bar-".to_string(), false),
-            ("[7key_hard]".to_string(), true),
-            ("baz".to_string(), false)
+            Token {
+                value: "foo".to_string(),
+                separator: Separator::Space
+            },
+            Token {
+                value: "bar-".to_string(),
+                separator: Separator::Split
+            },
+            Token {
+                value: "[7key_hard]".to_string(),
+                separator: Separator::Space
+            },
+            Token {
+                value: "baz".to_string(),
+                separator: Separator::None
+            },
         ]
     );
 }
@@ -59,6 +72,37 @@ fn common_prefix_test() {
         "plastic feat.sakito",
     ];
 
+    let artists2 = [
+        "-45 / obj.MENNY",
+        "-45/わなな・BANI",
+        "-45 / わなな・BANI /reobj:hamburger",
+        "-45 / わなな・BANI",
+        "-45/わなな・BANI",
+        "-45/わなな・BANI",
+        "-45/わなな・BANI",
+        "-45/わなな・BANI",
+        "-45/わなな・BANI",
+        "-45/わなな・BANI / obj:スノート",
+        "-45/わなな・BANI / obj:スノート",
+        "-45/わなな・BANI / obj:スノート",
+        "-45 / わなな・BANI / dj K'",
+        "-45 / わなな・BANI / dj K'",
+        "-45 / わなな・BANI / dj K'",
+        "-45/わなな・BANI / obj:発汗BMS",
+        "-45/わなな・BANI / obj:発汗BMS / 穴抜き",
+        "-45/わなな・BANI / obj:発汗BMS",
+        "-45 / わなな・BANI / 、",
+        "-45/わなな・BANI",
+        "-45 / わなな・BANI / obj.mp",
+        "-45 / わなな・BANI / obj.mp",
+        "-45 / わなな・BANI / obj.mp",
+        "-45/わなな・BANI",
+        "-45 / わなな・BANI / 、",
+        "-45 / わなな・BANI / 、",
+        "-45 / わなな・BANI",
+        "-45 / わなな・BANI mixed RYO-TA",
+    ];
+
     assert_eq!(utils::common_prefix(titles), "ひつぎとふたご");
     assert_eq!(
         utils::common_prefix(titles2),
@@ -66,4 +110,5 @@ fn common_prefix_test() {
     );
     assert_eq!(utils::common_prefix(titles3), "Xiper 2026");
     assert_eq!(utils::common_prefix(artists), "plastic feat.サキト");
+    assert_eq!(utils::common_prefix(artists2), "-45/わなな・BANI");
 }

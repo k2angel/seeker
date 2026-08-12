@@ -11,3 +11,16 @@ pub struct ImportResult {
     pub charts: Vec<Chart>,
     pub charts_due: Vec<Chart>,
 }
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum Separator {
+    None,
+    Space,
+    Split,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Token {
+    pub value: String,
+    pub separator: Separator,
+}
