@@ -4,7 +4,7 @@ use crate::model::{Separator, Token};
 
 pub fn tokenize(s: &str) -> Vec<Token> {
     let re = Regex::new(r"\[\S*\]|\(\S*\)|-[^-]+-|\/").unwrap();
-    let re_playside = Regex::new(r"[\[(-](sp|dp|\d+keys?)$").unwrap();
+    let re_playside = Regex::new(r"[\[(-](sp|dp|\d+keys?|\d+k)$").unwrap();
 
     let words_list: Vec<Vec<&str>> = s
         .split_whitespace()
