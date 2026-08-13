@@ -845,6 +845,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "nt-time"
+version = "0.13.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb05e8899d8da04eb63bbe0faed47f1632ace9f8bdd871645217695f896cd762"
+dependencies = [
+ "time",
+]
+
+[[package]]
 name = "num"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1156,6 +1165,7 @@ dependencies = [
  "clap",
  "directories",
  "encoding_rs",
+ "filetime",
  "fs_extra",
  "hex",
  "md5",
@@ -1166,6 +1176,7 @@ dependencies = [
  "sevenz-rust",
  "sha2 0.11.0",
  "tempfile",
+ "time",
  "unrar",
  "walkdir",
  "zip",
@@ -1237,7 +1248,7 @@ dependencies = [
  "filetime_creation",
  "js-sys",
  "lzma-rust",
- "nt-time",
+ "nt-time 0.8.1",
  "sha2 0.10.9",
  "wasm-bindgen",
 ]
@@ -1408,9 +1419,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.54"
+version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e1d5e639ff6bab73cb6885cc7e7b1de96c3f32c68ec55f3952614bec1092244"
+checksum = "cdb87b95ec50ddfa440816d227a17b2ccbdda963a316a727fda0fc4334f7d134"
 dependencies = [
  "deranged",
  "js-sys",
@@ -1723,6 +1734,7 @@ dependencies = [
  "indexmap",
  "lzma-rust2",
  "memchr",
+ "nt-time 0.13.2",
  "pbkdf2",
  "ppmd-rust",
  "sha1",

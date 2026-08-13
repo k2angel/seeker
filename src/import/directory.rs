@@ -1,4 +1,5 @@
 use anyhow::{Result, bail};
+use filetime::{FileTime, set_file_mtime};
 use fs_extra;
 use std::collections::HashSet;
 use std::fs;
@@ -16,11 +17,24 @@ fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
         ..Default::default()
     };
 
-    if dst.exists() {
-        let entries: Vec<_> = std::fs::read_dir(src)?
-            .map(|entry| entry.map(|e| e.path()))
-            .collect::<std::io::Result<_>>()?;
+    let entries: Vec<_> = WalkDir::new(src)
+        .into_iter()
+        .filter_map(Result::ok)
+        .map(|entry| entry.into_path())
+        .collect();
 
+    let mtimes: Vec<_> = entries
+        .iter()
+        .filter(|path| path != &&src)
+        .filter_map(|path| {
+            let modified = fs::metadata(path).ok()?.modified().ok()?;
+            let relative = path.strip_prefix(src).ok()?.to_owned();
+
+            Some((relative, FileTime::from_system_time(modified)))
+        })
+        .collect();
+
+    if dst.exists() {
         if move_files {
             fs_extra::move_items(&entries, dst, &options)?;
         } else {
@@ -32,6 +46,10 @@ fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
         } else {
             fs_extra::dir::copy(src, dst, &options)?;
         }
+    }
+
+    for (relative, mtime) in mtimes {
+        set_file_mtime(dst.join(relative), mtime)?;
     }
 
     Ok(())
