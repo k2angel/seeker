@@ -97,18 +97,34 @@ pub fn parse_chart(path: &Path) -> Result<Chart> {
 }
 
 pub fn build_song(charts: &[Chart]) -> Song {
-    let wavs: HashSet<_> = charts.iter().flat_map(|c| c.wavs.iter().cloned()).collect();
-    let bgas: HashSet<_> = charts.iter().flat_map(|c| c.bgas.iter().cloned()).collect();
-    let mut wavs_sort: Vec<_> = wavs.into_iter().collect();
-    let mut bgas_sort: Vec<_> = bgas.into_iter().collect();
-    wavs_sort.sort();
-    bgas_sort.sort();
+    let (title, artist, mut wavs, mut bgas) = if charts.len() == 1 {
+        let chart = &charts[0];
+
+        (
+            chart.title.clone(),
+            chart.artist.clone(),
+            chart.wavs.clone(),
+            chart.bgas.clone(),
+        )
+    } else {
+        let wavs: HashSet<_> = charts.iter().flat_map(|c| c.wavs.iter().cloned()).collect();
+        let bgas: HashSet<_> = charts.iter().flat_map(|c| c.bgas.iter().cloned()).collect();
+
+        (
+            utils::common_prefix(charts.iter().map(|c| c.title.as_str())),
+            utils::common_prefix(charts.iter().map(|c| c.artist.as_str())),
+            wavs.into_iter().collect(),
+            bgas.into_iter().collect(),
+        )
+    };
+
+    wavs.sort();
+    bgas.sort();
 
     Song {
-        title: utils::common_prefix(charts.iter().map(|c| c.title.as_str())),
-        artist: utils::common_prefix(charts.iter().map(|c| c.artist.as_str())),
-
-        wavs: wavs_sort,
-        bgas: bgas_sort,
+        title,
+        artist,
+        wavs,
+        bgas,
     }
 }
