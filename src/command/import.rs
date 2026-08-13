@@ -41,7 +41,13 @@ fn main(db: &mut Database, config: &Config, path: &Path, r#move: bool) -> Result
             files.len()
         );
 
-        let result = import_directory(db, &config.directory, &directory, &files, r#move)?;
+        let result = match import_directory(db, &config.directory, &directory, &files, r#move) {
+            Ok(result) => result,
+            Err(err) => {
+                eprintln!("{}", err);
+                continue;
+            }
+        };
 
         println!(
             "\x1b[33m{} - {}\x1b[m",
