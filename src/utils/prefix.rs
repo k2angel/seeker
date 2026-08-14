@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::collections::HashMap;
 
 use crate::model::{Separator, Token};
 
@@ -103,34 +104,30 @@ where
         }
 
         // valueが最も多いTokenを選ぶ
-        let mut best_token: Option<&Token> = None;
-        let mut best_count = 0;
-
+        let mut counts: HashMap<&str, usize> = HashMap::with_capacity(tokens.len());
         for token in &tokens {
-            let count = tokens
-                .iter()
-                .filter(|other| other.value == token.value)
-                .count();
-
-            if count > best_count {
-                best_token = Some(*token);
-                best_count = count;
-            }
+            *counts.entry(&token.value).or_default() += 1;
         }
+
+        let (mut best_value, mut best_count) = counts
+            .iter()
+            .max_by_key(|&(_, count)| count)
+            .map(|(&val, &count)| (val, count))
+            .unwrap_or(("", 0));
 
         // 完全一致では半数未満なので、前方一致にフォールバック
         if best_count * 2 <= total {
-            best_token = None;
+            best_value = "";
             best_count = 0;
 
-            for token in &tokens {
+            for candidate in counts.keys() {
                 let count = tokens
                     .iter()
-                    .filter(|other| other.value.starts_with(&token.value))
+                    .filter(|other| other.value.starts_with(candidate))
                     .count();
 
                 if count > best_count {
-                    best_token = Some(*token);
+                    best_value = candidate;
                     best_count = count;
                 }
             }
@@ -140,44 +137,30 @@ where
             break;
         }
 
-        let best_token = best_token.unwrap();
+        let mut separator = Separator::None;
+        let mut has_none = false;
+        let mut has_space = false;
 
-        let matching_tokens: Vec<&Token> = tokens
-            .into_iter()
-            .filter(|token| token.value == best_token.value)
-            .collect();
-
-        // [Space, Split] => Split
-        // [Space, Space] => Space
-        // [None, None] => None
-        let separator = if matching_tokens
-            .iter()
-            .any(|token| token.separator == Separator::Split)
-        {
-            Separator::Split
-        } else if matching_tokens
-            .iter()
-            .any(|token| token.separator == Separator::Space)
-        {
-            Separator::Space
-        } else {
-            Separator::None
-        };
+        for token in tokens.iter().filter(|t| t.value == best_value) {
+            match token.separator {
+                Separator::Split => separator = Separator::Split,
+                Separator::Space => {
+                    if separator != Separator::Split {
+                        separator = Separator::Space;
+                    }
+                    has_space = true;
+                }
+                Separator::None => {
+                    has_none = true;
+                }
+            }
+        }
 
         // value が一致したTokenは、まず結果に追加する
         result.push(Token {
-            value: best_token.value.clone(),
+            value: best_value.to_string(),
             separator,
         });
-
-        // None / Space が混在していたら、ここを最後にして終了
-        let has_none = matching_tokens
-            .iter()
-            .any(|token| token.separator == Separator::None);
-
-        let has_space = matching_tokens
-            .iter()
-            .any(|token| token.separator == Separator::Space);
 
         if has_none && has_space {
             break;
