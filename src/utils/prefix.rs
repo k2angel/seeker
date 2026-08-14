@@ -1,61 +1,58 @@
 use regex::Regex;
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 use crate::model::{Separator, Token};
 
+static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\[\S*\]|\(\S*\)|-[^-]+-|\/").unwrap());
+
+static RE_PLAYSIDE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)[\[(-](sp|dp|\d+keys?|\d+k)$").unwrap());
+
 pub fn tokenize(s: &str) -> Vec<Token> {
-    let re = Regex::new(r"\[\S*\]|\(\S*\)|-[^-]+-|\/").unwrap();
-    let re_playside = Regex::new(r"[\[(-](sp|dp|\d+keys?|\d+k)$").unwrap();
-
-    let words_list: Vec<Vec<&str>> = s
-        .split_whitespace()
-        .map(|word| {
-            let word = if let Some(m) = re_playside.find(&word.to_lowercase()) {
-                &word[..m.start()]
-            } else {
-                word
-            };
-
-            let mut result = Vec::new();
-            let mut pos = 0;
-
-            for m in re.find_iter(word) {
-                if pos < m.start() {
-                    result.push(&word[pos..m.start()]);
-                }
-
-                result.push(m.as_str());
-                pos = m.end();
-            }
-
-            if pos < word.len() {
-                result.push(&word[pos..]);
-            }
-
-            result
-        })
-        .collect();
-
-    let words_count = words_list.len();
+    let mut words = s.split_whitespace().peekable();
     let mut result = Vec::new();
 
-    for (words_index, values) in words_list.into_iter().enumerate() {
-        let is_last_words = words_index + 1 == words_count;
-        let value_count = values.len();
+    while let Some(word) = words.next() {
+        let word = match RE_PLAYSIDE.find(word) {
+            Some(m) => &word[..m.start()],
+            None => word,
+        };
 
-        for (value_index, value) in values.into_iter().enumerate() {
-            let is_last_value = value_index + 1 == value_count;
+        if word.is_empty() {
+            continue;
+        }
 
-            let separator = if is_last_value && !is_last_words {
-                Separator::Space
-            } else if is_last_value && is_last_words {
-                Separator::None
-            } else {
-                Separator::Split
+        let mut tokens_in_word = Vec::new();
+        let mut pos = 0;
+
+        for m in RE.find_iter(word) {
+            if pos < m.start() {
+                tokens_in_word.push(&word[pos..m.start()]);
+            }
+
+            tokens_in_word.push(m.as_str());
+            pos = m.end();
+        }
+
+        if pos < word.len() {
+            tokens_in_word.push(&word[pos..]);
+        }
+
+        let token_count = tokens_in_word.len();
+        let is_last_word = words.peek().is_none();
+
+        for (i, val) in tokens_in_word.into_iter().enumerate() {
+            let is_last_value = i + 1 == token_count;
+
+            let separator = match (is_last_value, is_last_word) {
+                (true, false) => Separator::Space,
+                (true, true) => Separator::None,
+                (false, _) => Separator::Split,
             };
 
             result.push(Token {
-                value: value.to_owned(),
+                value: val.to_owned(),
                 separator,
             });
         }
