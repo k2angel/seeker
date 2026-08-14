@@ -127,10 +127,9 @@ pub fn import_directory(
     let song = if !charts.is_empty() {
         let mut song = build_song(&charts);
 
-        if song.title.is_empty() || song.artist.is_empty() {
+        if song.title.is_empty() {
             dbg!(charts.iter().map(|c| c.title.as_str()).collect::<Vec<_>>());
-            dbg!(charts.iter().map(|c| c.artist.as_str()).collect::<Vec<_>>());
-            dbg!(&song.title, &song.artist);
+            dbg!(&song.title);
             bail!("There may be multiple music tracks in the directory.");
         }
 
