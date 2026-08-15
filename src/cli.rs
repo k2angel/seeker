@@ -65,37 +65,23 @@ pub struct StatsArgs {
     pub search: SearchArgs,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum SearchField {
-    All,
-    Artist,
-    Title,
-}
-
 #[derive(Debug, Clone)]
 pub struct SearchTerm {
-    pub field: SearchField,
+    pub field: Option<String>,
     pub value: String,
 }
 
 impl SearchTerm {
     pub fn parse(query: &str) -> Self {
-        if let Some(value) = query.strip_prefix("artist:") {
+        if let Some((field, value)) = query.split_once(":") {
             return Self {
-                field: SearchField::Artist,
-                value: value.to_owned(),
-            };
-        }
-
-        if let Some(value) = query.strip_prefix("title:") {
-            return Self {
-                field: SearchField::Title,
+                field: Some(field.to_owned()),
                 value: value.to_owned(),
             };
         }
 
         Self {
-            field: SearchField::All,
+            field: None,
             value: query.to_owned(),
         }
     }
