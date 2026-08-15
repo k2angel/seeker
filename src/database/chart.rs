@@ -112,7 +112,7 @@ impl Database {
                 SELECT *
                 FROM charts
                 WHERE {}
-                ORDER BY title;
+                ORDER BY artist, title;
                 ",
                 condition
             )
@@ -120,7 +120,7 @@ impl Database {
             "
             SELECT *
             FROM charts
-            ORDER BY title;
+            ORDER BY artist, title;
             "
             .to_string()
         };
