@@ -1,6 +1,6 @@
 use anyhow::Result;
-use rusqlite::params;
-use serde_json;
+use rusqlite::{ToSql, Transaction, params, params_from_iter};
+use serde_json::{from_str, to_string};
 use std::collections::HashSet;
 use std::path::PathBuf;
 
@@ -10,9 +10,9 @@ use crate::model::{Song, SongRow};
 use crate::utils;
 
 impl Database {
-    pub fn insert_song(conn: &rusqlite::Transaction<'_>, song: &Song) -> Result<i64> {
-        let wavs = serde_json::to_string(&song.wavs)?;
-        let bgas = serde_json::to_string(&song.bgas)?;
+    pub fn insert_song(conn: &Transaction<'_>, song: &Song) -> Result<i64> {
+        let wavs = to_string(&song.wavs)?;
+        let bgas = to_string(&song.bgas)?;
 
         conn.execute(
             "
@@ -29,7 +29,7 @@ impl Database {
         Ok(conn.last_insert_rowid())
     }
 
-    pub fn rebuild_song_resources(conn: &rusqlite::Transaction<'_>, song_id: i64) -> Result<()> {
+    pub fn rebuild_song_resources(conn: &Transaction<'_>, song_id: i64) -> Result<()> {
         let mut stmt = conn.prepare(
             "
             SELECT wavs, bgas
@@ -51,17 +51,17 @@ impl Database {
         for row in rows {
             let (chart_wavs, chart_bgas) = row?;
 
-            for wav in serde_json::from_str::<Vec<PathBuf>>(&chart_wavs)? {
+            for wav in from_str::<Vec<PathBuf>>(&chart_wavs)? {
                 wavs.insert(wav);
             }
 
-            for bga in serde_json::from_str::<Vec<PathBuf>>(&chart_bgas)? {
+            for bga in from_str::<Vec<PathBuf>>(&chart_bgas)? {
                 bgas.insert(bga);
             }
         }
 
-        let wavs = serde_json::to_string(&wavs.into_iter().collect::<Vec<_>>())?;
-        let bgas = serde_json::to_string(&bgas.into_iter().collect::<Vec<_>>())?;
+        let wavs = to_string(&wavs.into_iter().collect::<Vec<_>>())?;
+        let bgas = to_string(&bgas.into_iter().collect::<Vec<_>>())?;
 
         conn.execute(
             "
@@ -109,10 +109,7 @@ impl Database {
 
         let mut stmt = self.conn.prepare(&sql)?;
 
-        let rows = stmt.query_map(
-            rusqlite::params_from_iter(song_ids.iter()),
-            SongRow::from_row,
-        )?;
+        let rows = stmt.query_map(params_from_iter(song_ids.iter()), SongRow::from_row)?;
 
         Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
@@ -143,7 +140,7 @@ impl Database {
                 let mut best: Option<(SongRow, f64)> = None;
 
                 for row in rows {
-                    let wavs = serde_json::from_str::<Vec<PathBuf>>(&row.wavs)?;
+                    let wavs = from_str::<Vec<PathBuf>>(&row.wavs)?;
                     let matches = song.wavs.iter().filter(|wav| wavs.contains(wav)).count();
                     let rate = matches as f64 / song.wavs.len() as f64;
 
@@ -190,10 +187,8 @@ impl Database {
 
         Ok(match expr {
             Some(_) => {
-                let params: Vec<&dyn rusqlite::ToSql> = params
-                    .iter()
-                    .map(|param| param as &dyn rusqlite::ToSql)
-                    .collect();
+                let params: Vec<&dyn ToSql> =
+                    params.iter().map(|param| param as &dyn ToSql).collect();
 
                 let rows = stmt.query_map(params.as_slice(), SongRow::from_row)?;
                 rows.collect::<rusqlite::Result<_>>()?
@@ -228,10 +223,8 @@ impl Database {
 
         Ok(match expr {
             Some(_) => {
-                let params: Vec<&dyn rusqlite::ToSql> = params
-                    .iter()
-                    .map(|param| param as &dyn rusqlite::ToSql)
-                    .collect();
+                let params: Vec<&dyn ToSql> =
+                    params.iter().map(|param| param as &dyn ToSql).collect();
 
                 stmt.query_row(params.as_slice(), |row| row.get(0))?
             }

@@ -1,19 +1,15 @@
 use anyhow::Result;
-use rusqlite;
-use rusqlite::{OptionalExtension, params};
+use rusqlite::{OptionalExtension, ToSql, Transaction, params};
+use serde_json::to_string;
 
 use crate::cli::SearchExpr;
 use crate::database::{Database, search_condition};
 use crate::model::{Chart, ChartRow};
 
 impl Database {
-    pub fn insert_chart(
-        conn: &rusqlite::Transaction<'_>,
-        song_id: i64,
-        chart: &Chart,
-    ) -> Result<()> {
-        let wavs = serde_json::to_string(&chart.wavs)?;
-        let bgas = serde_json::to_string(&chart.bgas)?;
+    pub fn insert_chart(conn: &Transaction<'_>, song_id: i64, chart: &Chart) -> Result<()> {
+        let wavs = to_string(&chart.wavs)?;
+        let bgas = to_string(&chart.bgas)?;
         let filename = chart.filename.to_string_lossy();
 
         let chart_id = conn
@@ -137,10 +133,8 @@ impl Database {
 
         let rows: Vec<ChartRow> = match expr {
             Some(_) => {
-                let params: Vec<&dyn rusqlite::ToSql> = params
-                    .iter()
-                    .map(|param| param as &dyn rusqlite::ToSql)
-                    .collect();
+                let params: Vec<&dyn ToSql> =
+                    params.iter().map(|param| param as &dyn ToSql).collect();
 
                 let rows = stmt.query_map(params.as_slice(), ChartRow::from_row)?;
                 rows.collect::<rusqlite::Result<_>>()?
@@ -189,10 +183,8 @@ impl Database {
 
         Ok(match expr {
             Some(_) => {
-                let params: Vec<&dyn rusqlite::ToSql> = params
-                    .iter()
-                    .map(|param| param as &dyn rusqlite::ToSql)
-                    .collect();
+                let params: Vec<&dyn ToSql> =
+                    params.iter().map(|param| param as &dyn ToSql).collect();
 
                 stmt.query_row(params.as_slice(), |row| row.get(0))?
             }
