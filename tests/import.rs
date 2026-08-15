@@ -3,11 +3,10 @@ use std::fs;
 use std::path::Path;
 use tempfile::tempdir;
 
-use seeker::cli::{SearchExpr, SearchTerm};
 use seeker::database::Database;
 use seeker::import::parser;
 use seeker::import::{find_song_dirs, import_directory};
-use seeker::model;
+use seeker::model::{SearchExpr, SearchTerm, Song};
 
 #[test]
 fn import_directory_test() -> Result<()> {
@@ -43,7 +42,7 @@ fn import_chart_test() -> Result<()> {
         import_directory(&mut db, &library.path(), &directory, &files, false)?;
     }
 
-    let song = model::Song::try_from(db.detail_song(1)?)?;
+    let song = Song::try_from(db.detail_song(1)?)?;
     let expr = &SearchExpr::And(vec![SearchTerm::parse("私の狂気")]);
     let charts = db.search_charts(Some(expr))?;
 

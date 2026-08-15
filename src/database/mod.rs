@@ -4,7 +4,7 @@ mod song;
 use anyhow::Result;
 use std::path::Path;
 
-use crate::cli::{SearchExpr, SearchTerm};
+use crate::model::{SearchExpr, SearchTerm};
 
 // const VERSION: i32 = 1;
 const SCHEMA: &str = include_str!("schema.sql");

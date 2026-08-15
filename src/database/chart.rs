@@ -2,9 +2,8 @@ use anyhow::Result;
 use rusqlite::{OptionalExtension, ToSql, Transaction, params};
 use serde_json::to_string;
 
-use crate::cli::SearchExpr;
 use crate::database::{Database, search_condition};
-use crate::model::{Chart, ChartRow};
+use crate::model::{Chart, ChartRow, SearchExpr};
 
 impl Database {
     pub fn insert_chart(conn: &Transaction<'_>, song_id: i64, chart: &Chart) -> Result<()> {

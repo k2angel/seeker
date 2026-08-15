@@ -1,9 +1,11 @@
 mod chart;
 mod config;
+mod search;
 mod song;
 
 pub use chart::{Chart, ChartRow};
 pub use config::Config;
+pub use search::{SearchArgs, SearchExpr, SearchTerm};
 pub use song::{Song, SongRow};
 
 pub struct ImportResult {

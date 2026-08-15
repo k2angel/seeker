@@ -4,9 +4,8 @@ use serde_json::{from_str, to_string};
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-use crate::cli::SearchExpr;
 use crate::database::{Database, search_condition};
-use crate::model::{Song, SongRow};
+use crate::model::{SearchExpr, Song, SongRow};
 use crate::utils;
 
 impl Database {
