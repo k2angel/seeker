@@ -103,7 +103,15 @@ impl Database {
         let sql = if let Some(expr) = &expr {
             let condition = search_condition(
                 expr,
-                &["title", "subtitle", "artist", "sub_artist"],
+                &[
+                    "genre",
+                    "title",
+                    "subtitle",
+                    "artist",
+                    "sub_artist",
+                    "md5",
+                    "sha256",
+                ],
                 &mut params,
             );
 
@@ -160,7 +168,15 @@ impl Database {
         let sql = if let Some(expr) = &expr {
             let condition = search_condition(
                 expr,
-                &["title", "subtitle", "artist", "sub_artist"],
+                &[
+                    "genre",
+                    "title",
+                    "subtitle",
+                    "artist",
+                    "sub_artist",
+                    "md5",
+                    "sha256",
+                ],
                 &mut params,
             );
 
