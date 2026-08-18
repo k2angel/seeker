@@ -25,7 +25,7 @@ fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
 
     let mtimes: Vec<_> = entries
         .iter()
-        .filter(|path| path != &&src)
+        .filter(|path| path != &src)
         .filter_map(|path| {
             let modified = fs::metadata(path).ok()?.modified().ok()?;
             let relative = path.strip_prefix(src).ok()?.to_owned();
