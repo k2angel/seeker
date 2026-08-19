@@ -6,4 +6,5 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     pub directory: PathBuf,
     pub library: PathBuf,
+    pub beatoraja: Option<PathBuf>,
 }

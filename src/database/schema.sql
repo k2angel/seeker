@@ -34,6 +34,24 @@ CREATE TABLE IF NOT EXISTS charts (
         ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS tables (
+    id INTEGER PRIMARY KEY,
+
+    header_url TEXT NOT NULL,
+    data_url TEXT NOT NULL,
+    name TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+
+    level_order TEXT NOT NULL,
+    course TEXT,
+
+    sha256 TEXT NOT NULL,
+    etag TEXT,
+    last_modified INTEGER,
+
+    data BLOB NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_song_title
     ON songs(title);
 

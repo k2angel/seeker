@@ -1,5 +1,6 @@
 mod chart;
 mod song;
+mod table;
 
 use anyhow::Result;
 use std::path::Path;

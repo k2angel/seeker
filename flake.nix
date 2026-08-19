@@ -39,7 +39,10 @@
         commonArgs = {
           inherit src;
           strictDeps = true;
-          buildInputs = [ pkgs.sqlite ];
+          buildInputs = with pkgs; [
+            pkgs.sqlite
+            pkgs.openssl
+          ];
           nativeBuildInputs = [ pkgs.pkg-config ];
         };
 
@@ -74,6 +77,7 @@
             cargo
             clippy
             sqlite
+            openssl
           ];
         };
       }

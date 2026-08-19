@@ -1,7 +1,9 @@
+mod bmt;
 mod chart;
 mod config;
 mod search;
 mod song;
+pub mod table;
 
 pub use chart::{Chart, ChartRow};
 pub use config::Config;

@@ -25,6 +25,28 @@ pub enum Command {
 
     /// Show library statics.
     Stats(StatsArgs),
+
+    #[command(subcommand)]
+    Table(TableSubcommand),
+}
+
+#[derive(Subcommand)]
+pub enum TableSubcommand {
+    Import {
+        url: Vec<String>,
+    },
+
+    #[command(visible_alias = "ls")]
+    List(TableListArgs),
+
+    #[command(visible_alias = "rm")]
+    Remove {
+        query: Option<String>,
+    },
+
+    Update {
+        query: Option<String>,
+    },
 }
 
 #[derive(Args)]
@@ -65,4 +87,12 @@ pub struct RemoveArgs {
 pub struct StatsArgs {
     #[command(flatten)]
     pub search: SearchArgs,
+}
+
+#[derive(Args)]
+pub struct TableListArgs {
+    pub query: Option<String>,
+
+    #[arg(short, long)]
+    pub url: bool,
 }

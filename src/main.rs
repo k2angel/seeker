@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 
-use seeker::cli::{Cli, Command};
+use seeker::cli::{Cli, Command, TableSubcommand};
 use seeker::command;
 use seeker::config;
 
@@ -14,5 +14,12 @@ fn main() -> Result<()> {
         Command::List(args) => command::list::run(&config, args),
         Command::Remove(args) => command::remove::run(&config, args),
         Command::Stats(args) => command::stats::run(&config, args),
+
+        Command::Table(command) => match command {
+            TableSubcommand::Import { url } => command::table::import::run(&config, url),
+            TableSubcommand::List(args) => command::table::list::run(&config, args),
+            TableSubcommand::Remove { query } => command::table::remove::run(&config, query),
+            TableSubcommand::Update { query } => command::table::update::run(&config, query),
+        },
     }
 }
