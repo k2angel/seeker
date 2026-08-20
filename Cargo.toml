@@ -9,6 +9,7 @@ bms-rs = { version = "1.0.0", features = ["bmson"] }
 bytes = "1.12.1"
 chrono = { version = "0.4.45", features = ["alloc"] }
 clap = { version = "4.6.4", features = ["derive"] }
+dialoguer = "0.12.0"
 directories = "6.0.0"
 encoding_rs = "0.8.35"
 filetime = "0.2.29"
@@ -16,6 +17,7 @@ flate2 = "1.1.9"
 fs_extra = "1.3.0"
 hex = "0.4.3"
 md5 = "0.8.1"
+open = "5.4.1"
 regex = "1.13.1"
 reqwest = { version = "0.13.4", features = ["blocking", "json"] }
 rusqlite = "0.40.1"

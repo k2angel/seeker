@@ -26,6 +26,9 @@ pub enum Command {
     /// Show library statics.
     Stats(StatsArgs),
 
+    /// Open in STELLAVERSE IR.
+    Open(OpenArgs),
+
     #[command(subcommand)]
     Table(TableSubcommand),
 }
@@ -87,6 +90,16 @@ pub struct RemoveArgs {
 pub struct StatsArgs {
     #[command(flatten)]
     pub search: SearchArgs,
+}
+
+#[derive(Args)]
+pub struct OpenArgs {
+    #[command(flatten)]
+    pub search: SearchArgs,
+
+    /// Open in BMS Score Viewer.
+    #[arg(long)]
+    pub viewer: bool,
 }
 
 #[derive(Args)]
