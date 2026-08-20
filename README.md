@@ -8,6 +8,13 @@ BMS library manager
 seeker help
 ```
 
+## Features
+
+ - Support bmson.
+ - Support archive file. (zip, 7z, rar)
+ - Manage difficulty table.
+ - Open in STELLAVERSE IR or BMS Score Viewer.
+
 ## Configuration
 
 There is a configuration file left in `~/.config/seeker/config.json`
@@ -18,26 +25,6 @@ There is a configuration file left in `~/.config/seeker/config.json`
     "library": "<path to database file>"
 }
 ```
-
-## Example
-
-```
-# Import directory
-seeker import [DIRECTORY]
-
-# Import archive file (supported zip, 7z or rar)
-seeker import [ARCHIVE]
-
-# List songs or charts
-seeker list [--song] [QUERY]
-
-# Remove songs or charts
-seeker remove [--song] [QUERY]
-```
-
-### Supported query
- - AND, OR
- - `title:xxx`, `artist:xxx`
 
 ## Credits
 
