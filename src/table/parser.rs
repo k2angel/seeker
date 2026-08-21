@@ -13,7 +13,7 @@ use crate::model::table::{Data, Header};
 pub fn get_header_url(url: &str) -> Result<Url> {
     let url = Url::parse(url)?;
 
-    if url.path().ends_with("header.json") {
+    if url.path().ends_with("header.json") || url.path().ends_with("header_json.cgi") {
         return Ok(url);
     }
 
