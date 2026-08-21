@@ -154,7 +154,7 @@ pub fn import_directory(
         }
 
         if exists {
-            Database::rebuild_song_resources(&tx, song_id)?;
+            Database::update_song_resources(&tx, song_id)?;
         }
 
         transfer_dir(root, &song.library_dir(library), move_files)?;

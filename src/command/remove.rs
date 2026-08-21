@@ -35,7 +35,7 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
         }
     } else {
         let charts = db.search_charts(expr.as_ref())?;
-        let songs = song_map(db.detail_songs(charts.iter().map(|c| c.song_id))?)?;
+        let songs = song_map(db.get_songs(charts.iter().map(|c| c.song_id))?)?;
         let items: Vec<String> = charts
             .iter()
             .map(|chart| {

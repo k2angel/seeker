@@ -42,7 +42,7 @@ fn import_chart_test() -> Result<()> {
         import_directory(&mut db, &library.path(), &directory, &files, false)?;
     }
 
-    let song = Song::try_from(db.detail_song(1)?)?;
+    let song = Song::try_from(db.get_song(1)?)?;
     let expr = &SearchExpr::And(vec![SearchTerm::parse("私の狂気")]);
     let charts = db.search_charts(Some(expr))?;
 

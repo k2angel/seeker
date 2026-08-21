@@ -28,7 +28,7 @@ impl Database {
         Ok(conn.last_insert_rowid())
     }
 
-    pub fn rebuild_song_resources(conn: &Transaction<'_>, song_id: i64) -> Result<()> {
+    pub fn update_song_resources(conn: &Transaction<'_>, song_id: i64) -> Result<()> {
         let mut stmt = conn.prepare(
             "
             SELECT wavs, bgas
@@ -75,7 +75,7 @@ impl Database {
         Ok(())
     }
 
-    pub fn detail_song(&self, song_id: i64) -> Result<SongRow> {
+    pub fn get_song(&self, song_id: i64) -> Result<SongRow> {
         let mut stmt = self.conn.prepare(
             "
             SELECT *
@@ -87,7 +87,7 @@ impl Database {
         Ok(stmt.query_row([song_id], SongRow::from_row)?)
     }
 
-    pub fn detail_songs<I>(&self, song_ids: I) -> Result<Vec<SongRow>>
+    pub fn get_songs<I>(&self, song_ids: I) -> Result<Vec<SongRow>>
     where
         I: IntoIterator<Item = i64>,
     {
