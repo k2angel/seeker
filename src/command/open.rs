@@ -4,14 +4,14 @@ use std::io::Write;
 
 use crate::cli::OpenArgs;
 use crate::database::Database;
-use crate::model::{ChartRow, Config};
+use crate::model::Config;
 use crate::utils::song_map;
 
-fn confirm_open(count: usize, items: Vec<String>) -> Result<Vec<usize>> {
-    match count {
+fn confirm_open(items: &[String]) -> Result<Vec<usize>> {
+    match items.len() {
         0 => bail!("No matching items found."),
         1 => {
-            print!("Really open {} items from the library? (Yes/no) > ", count);
+            print!("Really open 1 items from the library? (Yes/no) > ");
             std::io::stdout().flush()?;
 
             let mut input = String::new();
@@ -22,7 +22,7 @@ fn confirm_open(count: usize, items: Vec<String>) -> Result<Vec<usize>> {
                 _ => Ok(vec![0]),
             }
         }
-        _ => {
+        count => {
             print!(
                 "Really open {} items from the library? (yes/no/Select) > ",
                 count
@@ -37,8 +37,8 @@ fn confirm_open(count: usize, items: Vec<String>) -> Result<Vec<usize>> {
                 "n" | "no" => bail!("Cancelled"),
                 _ => {
                     let selections = MultiSelect::new()
-                        .with_prompt("Select charts")
-                        .items(&items)
+                        .with_prompt("Select items")
+                        .items(items)
                         .interact()?;
 
                     Ok(selections)
@@ -90,7 +90,7 @@ pub fn run(config: &Config, args: OpenArgs) -> Result<()> {
         println!("{}", item);
     }
 
-    let selections = confirm_open(items.len(), items)?;
+    let selections = confirm_open(&items)?;
 
     for index in selections {
         let chart = &charts[index];

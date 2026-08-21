@@ -1,5 +1,4 @@
 use anyhow::Result;
-use rusqlite;
 use serde_json::from_str;
 use std::path::{Path, PathBuf};
 
@@ -12,6 +11,7 @@ pub struct Song {
     pub bgas: Vec<PathBuf>,
 }
 
+#[derive(Clone)]
 pub struct SongRow {
     pub id: i64,
 
@@ -44,6 +44,14 @@ impl TryFrom<SongRow> for Song {
             wavs: from_str(&row.wavs)?,
             bgas: from_str(&row.bgas)?,
         })
+    }
+}
+
+impl TryFrom<&SongRow> for Song {
+    type Error = anyhow::Error;
+
+    fn try_from(row: &SongRow) -> Result<Self> {
+        Self::try_from(row.clone())
     }
 }
 

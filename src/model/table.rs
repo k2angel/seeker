@@ -26,6 +26,7 @@ pub struct Table {
     pub data: Vec<u8>,
 }
 
+#[derive(Clone)]
 pub struct TableRow {
     pub id: i64,
 
@@ -288,5 +289,13 @@ impl TryFrom<TableRow> for Table {
             last_modified: row.last_modified,
             data: row.data,
         })
+    }
+}
+
+impl TryFrom<&TableRow> for Table {
+    type Error = anyhow::Error;
+
+    fn try_from(row: &TableRow) -> Result<Self> {
+        Self::try_from(row.clone())
     }
 }
