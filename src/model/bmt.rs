@@ -67,7 +67,7 @@ pub struct Folder {
 pub struct Song {
     pub class: Class,
     pub title: String,
-    pub artist: String,
+    pub artist: Option<String>,
     pub md5: Option<String>,
     pub sha256: Option<String>,
 }

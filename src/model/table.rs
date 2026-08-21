@@ -63,8 +63,7 @@ pub struct Data {
     pub level: String,
 
     pub title: String,
-    pub artist: String,
-
+    pub artist: Option<String>,
     pub url: Option<String>,
     pub url_diff: Option<String>,
     pub name_diff: Option<String>,
