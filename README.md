@@ -13,6 +13,7 @@ seeker help
  - Support bmson.
  - Support archive file. (zip, 7z, rar)
  - Manage difficulty table.
+ - Export bmt to beatoraja. (sort use beatoraja-config)
  - Open in STELLAVERSE IR or BMS Score Viewer.
 
 ## Configuration
@@ -22,7 +23,8 @@ There is a configuration file left in `~/.config/seeker/config.json`
 ```
 {
     "directory": "<path to BMS library>",
-    "library": "<path to database file>"
+    "library": "<path to database file>",
+    "beatoraja": "<path to beatoraja directory (option)>"
 }
 ```
 
