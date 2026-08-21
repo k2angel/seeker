@@ -1,53 +1,10 @@
-use anyhow::{Result, bail};
-use dialoguer::MultiSelect;
-use std::io::Write;
-use std::ops::Index;
+use anyhow::Result;
 
 use crate::cli::RemoveArgs;
 use crate::database::Database;
 use crate::model::{Config, Song};
-use crate::utils;
-
-fn confirm_remove(items: &[String]) -> Result<Vec<usize>> {
-    match items.len() {
-        0 => bail!("No matching items found."),
-        1 => {
-            print!("Really remove 1 items from the library? (Yes/no) > ",);
-            std::io::stdout().flush()?;
-
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input)?;
-
-            match input.trim().to_ascii_lowercase().as_str() {
-                "n" | "no" => bail!("Cancelled"),
-                _ => Ok(vec![0]),
-            }
-        }
-        count => {
-            print!(
-                "Really remove {} items from the library? (yes/no/Select) > ",
-                count
-            );
-            std::io::stdout().flush()?;
-
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input)?;
-
-            match input.trim().to_ascii_lowercase().as_str() {
-                "y" | "yes" => Ok((0..count).collect()),
-                "n" | "no" => bail!("Cancelled"),
-                _ => {
-                    let selections = MultiSelect::new()
-                        .with_prompt("Select items")
-                        .items(items)
-                        .interact()?;
-
-                    Ok(selections)
-                }
-            }
-        }
-    }
-}
+use crate::utils::song_map;
+use crate::utils::ui::confirm_input;
 
 pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
     let db = Database::open(&config.library)?;
@@ -66,7 +23,7 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
             println!("{}", item);
         }
 
-        let selections = confirm_remove(&items)?;
+        let selections = confirm_input("remove", &items)?;
 
         for index in selections {
             let song_row = &songs[index];
@@ -78,7 +35,7 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
         }
     } else {
         let charts = db.search_charts(expr.as_ref())?;
-        let songs = utils::song_map(db.detail_songs(charts.iter().map(|c| c.song_id))?)?;
+        let songs = song_map(db.detail_songs(charts.iter().map(|c| c.song_id))?)?;
         let items: Vec<String> = charts
             .iter()
             .map(|chart| {
@@ -107,10 +64,10 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
             println!("{}", item)
         }
 
-        let selections = confirm_remove(&items)?;
+        let selections = confirm_input("remove", &items)?;
 
         for index in selections {
-            let chart = charts.index(index);
+            let chart = &charts[index];
             let song = &songs[&chart.song_id];
             let song_id = chart.song_id;
             let path = song.library_dir(&config.directory).join(&chart.filename);
