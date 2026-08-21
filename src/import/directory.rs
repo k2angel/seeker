@@ -1,8 +1,7 @@
 use anyhow::{Result, bail};
 use filetime::{FileTime, set_file_mtime};
-use fs_extra;
 use std::collections::HashSet;
-use std::fs;
+use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
@@ -27,7 +26,7 @@ fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
         .iter()
         .filter(|path| path != &src)
         .filter_map(|path| {
-            let modified = fs::metadata(path).ok()?.modified().ok()?;
+            let modified = std::fs::metadata(path).ok()?.modified().ok()?;
             let relative = path.strip_prefix(src).ok()?.to_owned();
 
             Some((relative, FileTime::from_system_time(modified)))
@@ -65,7 +64,7 @@ pub fn find_song_dirs(root: &Path) -> Vec<(PathBuf, Vec<PathBuf>)> {
     {
         let dir = entry.path();
 
-        let files: Vec<PathBuf> = fs::read_dir(dir)
+        let files: Vec<PathBuf> = std::fs::read_dir(dir)
             .unwrap()
             .filter_map(Result::ok)
             .map(|entry| entry.path())
@@ -105,10 +104,14 @@ pub fn import_directory(
     let mut chart_hashes = HashSet::new();
 
     for file in files {
-        let chart = match parse_chart(file) {
-            Ok(chart) => chart,
-            Err(err) => {
+        let chart = match catch_unwind(AssertUnwindSafe(|| parse_chart(file))) {
+            Ok(Ok(chart)) => chart,
+            Ok(Err(err)) => {
                 eprintln!("Warning: failed to parse {}: {}", file.display(), err);
+                continue;
+            }
+            Err(_) => {
+                eprintln!("Warning: parser panicked for {}", file.display());
                 continue;
             }
         };
