@@ -200,16 +200,16 @@ impl Database {
         )?)
     }
 
-    pub fn exists_chart(&self, sha256: &str) -> Result<bool> {
+    pub fn exists_chart(&self, hash: &str) -> Result<bool> {
         Ok(self.conn.query_row(
             "
             SELECT EXISTS(
                 SELECT 1
                 FROM charts
-                WHERE sha256 = ?1
+                WHERE md5 = ?1 OR sha256 = ?1
             );
             ",
-            [sha256],
+            [hash],
             |row| row.get(0),
         )?)
     }
