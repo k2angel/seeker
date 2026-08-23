@@ -1,4 +1,4 @@
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use filetime::{FileTime, set_file_mtime};
 use sevenz_rust;
 use std::fs::{self, File};
@@ -89,7 +89,7 @@ fn extract_rar(path: &Path, output: &Path) -> Result<()> {
 }
 
 pub fn extract_archive(path: &Path, output: &Path) -> Result<()> {
-    match path
+    let result = match path
         .extension()
         .and_then(|e| e.to_str())
         .map(|s| s.to_ascii_lowercase())
@@ -99,5 +99,7 @@ pub fn extract_archive(path: &Path, output: &Path) -> Result<()> {
         Some("7z") => extract_7z(path, output),
         Some("rar") => extract_rar(path, output),
         _ => bail!("unsupported archive"),
-    }
+    };
+
+    result.with_context(|| format!("failed to extract {}", path.display()))
 }

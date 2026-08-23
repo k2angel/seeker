@@ -12,7 +12,9 @@ pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     db.create_schema()?;
 
     for (i, p) in args.path.clone().into_iter().enumerate() {
-        main(&mut db, config, &p, args.r#move)?;
+        if let Err(err) = main(&mut db, config, &p, args.r#move) {
+            eprintln!("Error: {}", err);
+        }
 
         if i + 1 < args.path.len() {
             println!();
