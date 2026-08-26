@@ -23,7 +23,11 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
             println!("{}", item);
         }
 
-        let selections = confirm_input("remove", &items)?;
+        let selections = if args.force {
+            (0..items.len()).collect()
+        } else {
+            confirm_input("remove", &items)?
+        };
 
         for index in selections {
             let song_row = &songs[index];
@@ -64,7 +68,11 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
             println!("{}", item)
         }
 
-        let selections = confirm_input("remove", &items)?;
+        let selections = if args.force {
+            (0..items.len()).collect()
+        } else {
+            confirm_input("remove", &items)?
+        };
 
         for index in selections {
             let chart = &charts[index];

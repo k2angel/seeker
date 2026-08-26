@@ -84,6 +84,9 @@ pub struct RemoveArgs {
     /// Remove songs instead of charts.
     #[arg(short, long)]
     pub song: bool,
+
+    #[arg(short, long)]
+    pub force: bool,
 }
 
 #[derive(Args)]
