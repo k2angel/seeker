@@ -43,7 +43,7 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
                     chart
                         .sub_artist
                         .as_ref()
-                        .map(|s| format!(" / {}", s))
+                        .map(|s| format!(" {}", s))
                         .unwrap_or_default(),
                     song.title,
                     chart.title,

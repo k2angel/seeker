@@ -48,7 +48,7 @@ fn search_term_condition(
             .join(" OR "),
 
         Some("artist") if all_fields.contains(&"sub_artist") => format!(
-            "artist || CASE WHEN sub_artist IS NOT NULL THEN ' / ' || sub_artist ELSE '' END LIKE ?{n}"
+            "artist || CASE WHEN sub_artist IS NOT NULL THEN ' ' || sub_artist ELSE '' END LIKE ?{n}"
         ),
 
         Some("title") if all_fields.contains(&"subtitle") => format!(

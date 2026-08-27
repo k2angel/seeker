@@ -63,7 +63,7 @@ fn main(db: &mut Database, config: &Config, path: &Path, r#move: bool) -> Result
                 chart
                     .sub_artist
                     .as_ref()
-                    .map(|s| format!(" / {}", s))
+                    .map(|s| format!(" {}", s))
                     .unwrap_or_default(),
                 chart.title,
                 chart
@@ -81,7 +81,7 @@ fn main(db: &mut Database, config: &Config, path: &Path, r#move: bool) -> Result
                 chart
                     .sub_artist
                     .as_ref()
-                    .map(|s| format!(" / {}", s))
+                    .map(|s| format!(" {}", s))
                     .unwrap_or_default(),
                 chart.title,
                 chart

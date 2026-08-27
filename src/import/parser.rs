@@ -43,7 +43,7 @@ pub fn parse_chart(path: &Path) -> Result<Chart> {
             bmson.info.title.to_string(),
             bmson.info.subtitle.to_string(),
             bmson.info.artist.to_string(),
-            bmson.info.subartists.join(" / ").to_string(),
+            bmson.info.subartists.join(" ").to_string(),
             wavs,
             bgas,
         )
