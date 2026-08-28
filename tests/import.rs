@@ -1,13 +1,14 @@
 use anyhow::Result;
-use seeker::cli::ImportEncoding;
 use std::fs;
 use std::path::Path;
 use tempfile::tempdir;
 
 use seeker::database::Database;
+use seeker::import::find_song_dirs;
 use seeker::import::parser;
-use seeker::import::{find_song_dirs, import_directory};
 use seeker::model::{SearchExpr, SearchTerm, Song};
+
+mod wrap;
 
 #[test]
 fn import_directory_test() -> Result<()> {
@@ -17,15 +18,7 @@ fn import_directory_test() -> Result<()> {
     db.create_schema()?;
 
     for (directory, files) in find_song_dirs(Path::new("tests/data/hitsugi")) {
-        import_directory(
-            &mut db,
-            &library.path(),
-            &directory,
-            &files,
-            false,
-            ImportEncoding::ShiftJis,
-            false,
-        )?;
+        wrap::import_directory_with_default(&mut db, &library.path(), &directory, &files)?;
     }
 
     assert_eq!(db.count_songs(None)?, 1);
@@ -48,15 +41,7 @@ fn import_chart_test() -> Result<()> {
     db.create_schema()?;
 
     for (directory, files) in find_song_dirs(Path::new("tests/data/hitsugi")) {
-        import_directory(
-            &mut db,
-            &library.path(),
-            &directory,
-            &files,
-            false,
-            ImportEncoding::ShiftJis,
-            false,
-        )?;
+        wrap::import_directory_with_default(&mut db, &library.path(), &directory, &files)?;
     }
 
     let song = Song::try_from(db.get_song(1)?)?;
@@ -71,15 +56,7 @@ fn import_chart_test() -> Result<()> {
     }
 
     for (directory, files) in find_song_dirs(Path::new("tests/data/hitsugi")) {
-        import_directory(
-            &mut db,
-            &library.path(),
-            &directory,
-            &files,
-            false,
-            ImportEncoding::ShiftJis,
-            false,
-        )?;
+        wrap::import_directory_with_default(&mut db, &library.path(), &directory, &files)?;
     }
 
     assert_eq!(db.count_songs(None)?, 1);
@@ -89,8 +66,7 @@ fn import_chart_test() -> Result<()> {
 
 #[test]
 fn parse_chart_test() {
-    let chart =
-        parser::parse_chart(Path::new("tests/data/-.bms"), ImportEncoding::ShiftJis).unwrap();
+    let chart = wrap::parse_chart_with_sjis(Path::new("tests/data/-.bms")).unwrap();
 
     println!("{:#?}", chart);
 
@@ -116,7 +92,7 @@ fn build_song_test() {
                 ext.to_ascii_lowercase().as_str(),
                 "bms" | "bme" | "bml" | "pms"
             ) {
-                charts.push(parser::parse_chart(&path, ImportEncoding::ShiftJis).unwrap());
+                charts.push(wrap::parse_chart_with_sjis(&path).unwrap());
             }
         }
     }

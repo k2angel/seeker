@@ -1,7 +1,8 @@
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand};
 use std::path::PathBuf;
 
 use crate::model::SearchArgs;
+use crate::model::import::ImportEncoding;
 
 #[derive(Parser)]
 #[command(version, about = "BMS library manager.")]
@@ -51,13 +52,6 @@ pub enum TableSubcommand {
         query: Option<String>,
     },
 
-
-#[derive(Clone, ValueEnum)]
-pub enum ImportEncoding {
-    ShiftJis,
-    Big5,
-    EucKr,
-    Auto,
 }
 
 #[derive(Args)]

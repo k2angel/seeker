@@ -7,11 +7,11 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::cli::ImportEncoding;
+use crate::model::import::ImportEncoding;
 use crate::model::{Chart, Song};
 use crate::utils;
 
-pub fn parse_chart(path: &Path, encoding: ImportEncoding) -> Result<Chart> {
+pub fn parse_chart(path: &Path, encoding: &ImportEncoding) -> Result<Chart> {
     let bytes = fs::read(path)?;
     let sha256 = utils::sha256sum(&bytes);
 

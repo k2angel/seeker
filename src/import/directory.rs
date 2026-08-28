@@ -5,10 +5,10 @@ use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-use crate::cli::ImportEncoding;
 use crate::database::Database;
 use crate::import::parser::{build_song, parse_chart};
-use crate::model;
+use crate::model::Song;
+use crate::model::import::{ImportOption, ImportResult};
 
 fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
     let options = fs_extra::dir::CopyOptions {
@@ -98,16 +98,14 @@ pub fn import_directory(
     library: &Path,
     root: &Path,
     files: &[PathBuf],
-    move_files: bool,
-    encoding: ImportEncoding,
-    dry_run: bool,
-) -> Result<model::ImportResult> {
+    option: ImportOption,
+) -> Result<ImportResult> {
     let mut charts = Vec::new();
     let mut charts_due = Vec::new();
     let mut chart_hashes = HashSet::new();
 
     for file in files {
-        let chart = match catch_unwind(AssertUnwindSafe(|| parse_chart(file, encoding.clone()))) {
+        let chart = match catch_unwind(AssertUnwindSafe(|| parse_chart(file, &option.encoding))) {
             Ok(Ok(chart)) => chart,
             Ok(Err(err)) => {
                 eprintln!("Warning: failed to parse {}: {}", file.display(), err);
@@ -140,13 +138,14 @@ pub fn import_directory(
         }
 
         let result = db.find_song(&song)?;
-        if !dry_run {
+
+        if !option.dry_run {
             let tx = db.transaction()?;
 
             let (song_id, exists) = match result {
                 None => (Database::insert_song(&tx, &song)?, false),
                 Some(result) => {
-                    song = model::Song {
+                    song = Song {
                         title: result.title,
                         artist: result.artist,
                         ..song
@@ -164,7 +163,7 @@ pub fn import_directory(
                 Database::update_song_resources(&tx, song_id)?;
             }
 
-            transfer_dir(root, &song.library_dir(library), move_files)?;
+            transfer_dir(root, &song.library_dir(library), option.r#move)?;
             tx.commit()?;
         }
 
@@ -173,7 +172,7 @@ pub fn import_directory(
         build_song(&charts_due)
     };
 
-    Ok(model::ImportResult {
+    Ok(ImportResult {
         song,
         charts,
         charts_due,

@@ -2,10 +2,11 @@ use anyhow::Result;
 use std::path::Path;
 use tempfile::tempdir;
 
-use crate::cli::{ImportArgs, ImportEncoding};
+use crate::cli::ImportArgs;
 use crate::database::Database;
 use crate::import::{extract_archive, find_song_dirs, import_directory};
 use crate::model::Config;
+use crate::model::import::{ImportEncoding, ImportOption};
 
 pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     let mut db = Database::open(&config.library)?;
@@ -43,15 +44,13 @@ fn main(db: &mut Database, config: &Config, path: &Path, args: &ImportArgs) -> R
             files.len()
         );
 
-        let result = match import_directory(
-            db,
-            &config.directory,
-            &directory,
-            &files,
-            args.r#move,
-            args.encoding.clone().unwrap_or(ImportEncoding::ShiftJis),
-            args.dry_run,
-        ) {
+        let options = ImportOption {
+            r#move: args.r#move,
+            dry_run: args.dry_run,
+            encoding: args.encoding.clone().unwrap_or(ImportEncoding::ShiftJis),
+        };
+
+        let result = match import_directory(db, &config.directory, &directory, &files, options) {
             Ok(result) => result,
             Err(err) => {
                 eprintln!("{}", err);
