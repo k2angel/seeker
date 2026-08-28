@@ -23,8 +23,9 @@ impl Database {
                 bgas,
                 filename,
                 md5,
-                sha256
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                sha256,
+                modified_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             params![
                 &song_id,
@@ -38,6 +39,7 @@ impl Database {
                 &chart.filename.to_string_lossy(),
                 &chart.md5,
                 &chart.sha256,
+                &chart.modified_at
             ],
         )?;
 
@@ -61,6 +63,7 @@ impl Database {
                 bgas = ?,
                 md5 = ?,
                 sha256 = ?
+                modified_at = ?
             WHERE id = ?
             ",
             params![
@@ -73,6 +76,7 @@ impl Database {
                 &bgas,
                 &chart.md5,
                 &chart.sha256,
+                &chart.modified_at,
                 &chart_id,
             ],
         )?;
