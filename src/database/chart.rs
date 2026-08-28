@@ -9,8 +9,82 @@ impl Database {
     pub fn insert_chart(conn: &Transaction<'_>, song_id: i64, chart: &Chart) -> Result<()> {
         let wavs = to_string(&chart.wavs)?;
         let bgas = to_string(&chart.bgas)?;
-        let filename = chart.filename.to_string_lossy();
 
+        conn.execute(
+            "
+            INSERT INTO charts (
+                song_id,
+                genre,
+                title,
+                subtitle,
+                artist,
+                sub_artist,
+                wavs,
+                bgas,
+                filename,
+                md5,
+                sha256
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ",
+            params![
+                &song_id,
+                &chart.genre,
+                &chart.title,
+                &chart.subtitle,
+                &chart.artist,
+                &chart.sub_artist,
+                &wavs,
+                &bgas,
+                &chart.filename.to_string_lossy(),
+                &chart.md5,
+                &chart.sha256,
+            ],
+        )?;
+
+        Ok(())
+    }
+
+    pub fn update_chart(conn: &Transaction<'_>, chart_id: i64, chart: &Chart) -> Result<()> {
+        let wavs = to_string(&chart.wavs)?;
+        let bgas = to_string(&chart.bgas)?;
+
+        conn.execute(
+            "
+            UPDATE charts
+            SET
+                genre = ?,
+                title = ?,
+                subtitle = ?,
+                artist = ?,
+                sub_artist = ?,
+                wavs = ?,
+                bgas = ?,
+                md5 = ?,
+                sha256 = ?
+            WHERE id = ?
+            ",
+            params![
+                &chart.genre,
+                &chart.title,
+                &chart.subtitle,
+                &chart.artist,
+                &chart.sub_artist,
+                &wavs,
+                &bgas,
+                &chart.md5,
+                &chart.sha256,
+                &chart_id,
+            ],
+        )?;
+
+        Ok(())
+    }
+
+    pub fn get_chart_id(
+        conn: &Transaction<'_>,
+        song_id: i64,
+        filename: &str,
+    ) -> Result<Option<i64>> {
         let chart_id = conn
             .query_row(
                 "
@@ -23,73 +97,7 @@ impl Database {
             )
             .optional()?;
 
-        match chart_id {
-            Some(chart_id) => {
-                conn.execute(
-                    "
-                    UPDATE charts
-                    SET
-                        genre = ?,
-                        title = ?,
-                        subtitle = ?,
-                        artist = ?,
-                        sub_artist = ?,
-                        wavs = ?,
-                        bgas = ?,
-                        md5 = ?,
-                        sha256 = ?
-                    WHERE id = ?
-                    ",
-                    params![
-                        &chart.genre,
-                        &chart.title,
-                        &chart.subtitle,
-                        &chart.artist,
-                        &chart.sub_artist,
-                        &wavs,
-                        &bgas,
-                        &chart.md5,
-                        &chart.sha256,
-                        &chart_id,
-                    ],
-                )?;
-            }
-
-            None => {
-                conn.execute(
-                    "
-                    INSERT INTO charts (
-                        song_id,
-                        genre,
-                        title,
-                        subtitle,
-                        artist,
-                        sub_artist,
-                        wavs,
-                        bgas,
-                        filename,
-                        md5,
-                        sha256
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ",
-                    params![
-                        &song_id,
-                        &chart.genre,
-                        &chart.title,
-                        &chart.subtitle,
-                        &chart.artist,
-                        &chart.sub_artist,
-                        &wavs,
-                        &bgas,
-                        &chart.filename.to_string_lossy(),
-                        &chart.md5,
-                        &chart.sha256,
-                    ],
-                )?;
-            }
-        }
-
-        Ok(())
+        Ok(chart_id)
     }
 
     pub fn search_charts(&self, expr: Option<&SearchExpr>) -> Result<Vec<ChartRow>> {
