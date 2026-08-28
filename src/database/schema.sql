@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS charts (
     sha256 TEXT NOT NULL UNIQUE,
 
     modified_at INTEGER NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
+    created_at TEXT NOT NULL DEFAULT (DATETIME('now')),
 
     FOREIGN KEY(song_id)
         REFERENCES songs(id)
