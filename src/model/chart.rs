@@ -18,6 +18,8 @@ pub struct Chart {
 
     pub md5: Option<String>,
     pub sha256: String,
+
+    pub modified_at: i64,
 }
 
 pub struct ChartRow {
@@ -37,6 +39,9 @@ pub struct ChartRow {
 
     pub md5: Option<String>,
     pub sha256: String,
+
+    pub modified_at: i64,
+    pub created_at: String,
 }
 
 impl ChartRow {
@@ -54,6 +59,8 @@ impl ChartRow {
             filename: row.get("filename")?,
             md5: row.get("md5")?,
             sha256: row.get("sha256")?,
+            modified_at: row.get("modified_at")?,
+            created_at: row.get("created_at")?,
         })
     }
 }
@@ -73,6 +80,7 @@ impl TryFrom<ChartRow> for Chart {
             filename: PathBuf::from(row.filename),
             md5: row.md5,
             sha256: row.sha256,
+            modified_at: row.modified_at,
         })
     }
 }

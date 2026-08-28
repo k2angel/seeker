@@ -4,7 +4,6 @@ use bms_rs::bmson::{BmsonParseOutput, parse_bmson};
 use chardetng::{EncodingDetector, Iso2022JpDetection, Utf8Detection};
 use encoding_rs::{BIG5, EUC_KR, SHIFT_JIS};
 use std::collections::HashSet;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::model::import::ImportEncoding;
@@ -12,8 +11,12 @@ use crate::model::{Chart, Song};
 use crate::utils;
 
 pub fn parse_chart(path: &Path, encoding: &ImportEncoding) -> Result<Chart> {
-    let bytes = fs::read(path)?;
+    let bytes = std::fs::read(path)?;
     let sha256 = utils::sha256sum(&bytes);
+    let modified_at = std::fs::metadata(path)?
+        .modified()?
+        .duration_since(std::time::UNIX_EPOCH)?
+        .as_secs() as i64;
 
     let (md5, genre, title, subtitle, artist, sub_artist, wavs, bgas) = if path.extension().unwrap()
         == "bmson"
@@ -106,6 +109,7 @@ pub fn parse_chart(path: &Path, encoding: &ImportEncoding) -> Result<Chart> {
 
         md5,
         sha256,
+        modified_at,
     })
 }
 

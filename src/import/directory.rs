@@ -1,6 +1,5 @@
 use anyhow::{Result, bail};
 use filetime::{FileTime, set_file_mtime};
-use serde_json::error::Category::Data;
 use std::collections::HashSet;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::{Path, PathBuf};
@@ -159,8 +158,11 @@ pub fn import_directory(
             for chart in &charts {
                 let filename = chart.filename.to_string_lossy();
 
-                match Database::get_chart_id(&tx, song_id, &filename)? {
-                    Some(chart_id) => Database::update_chart(&tx, chart_id, chart)?,
+                match Database::find_chart_by_filename(&tx, song_id, &filename)? {
+                    Some(row) if row.modified_at < chart.modified_at => {
+                        Database::update_chart(&tx, row.id, chart)?
+                    }
+                    Some(_) => {}
                     None => Database::insert_chart(&tx, song_id, chart)?,
                 }
             }

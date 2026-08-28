@@ -80,24 +80,22 @@ impl Database {
         Ok(())
     }
 
-    pub fn get_chart_id(
+    pub fn find_chart_by_filename(
         conn: &Transaction<'_>,
         song_id: i64,
         filename: &str,
-    ) -> Result<Option<i64>> {
-        let chart_id = conn
+    ) -> Result<Option<ChartRow>> {
+        Ok(conn
             .query_row(
                 "
-                SELECT id
+                SELECT *
                 FROM charts
                 WHERE song_id = ? AND filename = ?
                 ",
-                (&song_id, &filename),
-                |row| row.get::<_, i64>(0),
+                (song_id, filename),
+                ChartRow::from_row,
             )
-            .optional()?;
-
-        Ok(chart_id)
+            .optional()?)
     }
 
     pub fn search_charts(&self, expr: Option<&SearchExpr>) -> Result<Vec<ChartRow>> {
