@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS charts (
     md5 TEXT UNIQUE,
     sha256 TEXT NOT NULL UNIQUE,
 
-    updated_at INTEGER NOT NULL,
+    modified_at INTEGER NOT NULL,
     created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
 
     FOREIGN KEY(song_id)
