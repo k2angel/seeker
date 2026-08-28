@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::path::Path;
 use tempfile::tempdir;
 
-use crate::cli::ImportArgs;
+use crate::cli::{ImportArgs, ImportEncoding};
 use crate::database::Database;
 use crate::import::{extract_archive, find_song_dirs, import_directory};
 use crate::model::Config;
@@ -12,7 +12,7 @@ pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     db.create_schema()?;
 
     for (i, p) in args.path.clone().into_iter().enumerate() {
-        if let Err(err) = main(&mut db, config, &p, args.r#move) {
+        if let Err(err) = main(&mut db, config, &p, &args) {
             eprintln!("Error: {}", err);
         }
 
@@ -24,7 +24,7 @@ pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     Ok(())
 }
 
-fn main(db: &mut Database, config: &Config, path: &Path, r#move: bool) -> Result<()> {
+fn main(db: &mut Database, config: &Config, path: &Path, args: &ImportArgs) -> Result<()> {
     let tmp;
     let root = if path.is_dir() {
         path
@@ -43,7 +43,15 @@ fn main(db: &mut Database, config: &Config, path: &Path, r#move: bool) -> Result
             files.len()
         );
 
-        let result = match import_directory(db, &config.directory, &directory, &files, r#move) {
+        let result = match import_directory(
+            db,
+            &config.directory,
+            &directory,
+            &files,
+            args.r#move,
+            args.encoding.clone().unwrap_or(ImportEncoding::ShiftJis),
+            args.dry_run,
+        ) {
             Ok(result) => result,
             Err(err) => {
                 eprintln!("{}", err);

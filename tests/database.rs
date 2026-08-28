@@ -1,4 +1,5 @@
 use anyhow::Result;
+use seeker::cli::ImportEncoding;
 use std::{fs, path::Path};
 
 use seeker::database::Database;
@@ -20,7 +21,7 @@ fn database_insert_test() -> Result<()> {
                 ext.to_ascii_lowercase().as_str(),
                 "bms" | "bme" | "bml" | "pms"
             ) {
-                charts.push(parse_chart(&path)?);
+                charts.push(parse_chart(&path, ImportEncoding::ShiftJis)?);
             }
         }
     }

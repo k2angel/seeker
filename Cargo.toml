@@ -7,6 +7,7 @@ edition = "2024"
 anyhow = "1.0.104"
 bms-rs = { version = "1.0.0", features = ["bmson"] }
 bytes = "1.12.1"
+chardetng = "1.0.0"
 chrono = { version = "0.4.45", features = ["alloc"] }
 clap = { version = "4.6.4", features = ["derive"] }
 dialoguer = "0.12.0"

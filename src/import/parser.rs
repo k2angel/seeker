@@ -1,15 +1,17 @@
 use anyhow::Result;
 use bms_rs::bms::{BmsOutput, default_config, parse_bms};
 use bms_rs::bmson::{BmsonParseOutput, parse_bmson};
-use encoding_rs::SHIFT_JIS;
+use chardetng::{EncodingDetector, Iso2022JpDetection, Utf8Detection};
+use encoding_rs::{BIG5, EUC_KR, SHIFT_JIS};
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::cli::ImportEncoding;
 use crate::model::{Chart, Song};
 use crate::utils;
 
-pub fn parse_chart(path: &Path) -> Result<Chart> {
+pub fn parse_chart(path: &Path, encoding: ImportEncoding) -> Result<Chart> {
     let bytes = fs::read(path)?;
     let sha256 = utils::sha256sum(&bytes);
 
@@ -48,7 +50,18 @@ pub fn parse_chart(path: &Path) -> Result<Chart> {
             bgas,
         )
     } else {
-        let (source, _, _) = SHIFT_JIS.decode(&bytes);
+        let (source, _, _) = match encoding {
+            ImportEncoding::ShiftJis => SHIFT_JIS.decode(&bytes),
+            ImportEncoding::Big5 => BIG5.decode(&bytes),
+            ImportEncoding::EucKr => EUC_KR.decode(&bytes),
+            ImportEncoding::Auto => {
+                let mut detector = EncodingDetector::new(Iso2022JpDetection::Deny);
+                detector.feed(&bytes, true);
+
+                let encoding = detector.guess(None, Utf8Detection::Deny);
+                encoding.decode(&bytes)
+            }
+        };
 
         let BmsOutput { bms, warnings: _ } = parse_bms(source.as_ref(), default_config());
         let bms = bms?;

@@ -5,6 +5,7 @@ use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
+use crate::cli::ImportEncoding;
 use crate::database::Database;
 use crate::import::parser::{build_song, parse_chart};
 use crate::model;
@@ -98,13 +99,15 @@ pub fn import_directory(
     root: &Path,
     files: &[PathBuf],
     move_files: bool,
+    encoding: ImportEncoding,
+    dry_run: bool,
 ) -> Result<model::ImportResult> {
     let mut charts = Vec::new();
     let mut charts_due = Vec::new();
     let mut chart_hashes = HashSet::new();
 
     for file in files {
-        let chart = match catch_unwind(AssertUnwindSafe(|| parse_chart(file))) {
+        let chart = match catch_unwind(AssertUnwindSafe(|| parse_chart(file, encoding.clone()))) {
             Ok(Ok(chart)) => chart,
             Ok(Err(err)) => {
                 eprintln!("Warning: failed to parse {}: {}", file.display(), err);
@@ -137,31 +140,33 @@ pub fn import_directory(
         }
 
         let result = db.find_song(&song)?;
-        let tx = db.transaction()?;
+        if !dry_run {
+            let tx = db.transaction()?;
 
-        let (song_id, exists) = match result {
-            None => (Database::insert_song(&tx, &song)?, false),
-            Some(result) => {
-                song = model::Song {
-                    title: result.title,
-                    artist: result.artist,
-                    ..song
-                };
+            let (song_id, exists) = match result {
+                None => (Database::insert_song(&tx, &song)?, false),
+                Some(result) => {
+                    song = model::Song {
+                        title: result.title,
+                        artist: result.artist,
+                        ..song
+                    };
 
-                (result.id, true)
+                    (result.id, true)
+                }
+            };
+
+            for chart in &charts {
+                Database::insert_chart(&tx, song_id, chart)?;
             }
-        };
 
-        for chart in &charts {
-            Database::insert_chart(&tx, song_id, chart)?;
+            if exists {
+                Database::update_song_resources(&tx, song_id)?;
+            }
+
+            transfer_dir(root, &song.library_dir(library), move_files)?;
+            tx.commit()?;
         }
-
-        if exists {
-            Database::update_song_resources(&tx, song_id)?;
-        }
-
-        transfer_dir(root, &song.library_dir(library), move_files)?;
-        tx.commit()?;
 
         song
     } else {

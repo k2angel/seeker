@@ -1,4 +1,4 @@
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
 use crate::model::SearchArgs;
@@ -50,6 +50,14 @@ pub enum TableSubcommand {
     Update {
         query: Option<String>,
     },
+
+
+#[derive(Clone, ValueEnum)]
+pub enum ImportEncoding {
+    ShiftJis,
+    Big5,
+    EucKr,
+    Auto,
 }
 
 #[derive(Args)]
@@ -60,6 +68,12 @@ pub struct ImportArgs {
     /// Move files.
     #[arg(short, long)]
     pub r#move: bool,
+
+    #[arg(short, long)]
+    pub encoding: Option<ImportEncoding>,
+
+    #[arg(long)]
+    pub dry_run: bool,
 }
 
 #[derive(Args)]
