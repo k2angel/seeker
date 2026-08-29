@@ -130,10 +130,12 @@ where
             }
         }
 
-        if best_count * 2 < total && !result.is_empty() {
-            break;
-        } else if best_count * 2 == 2 && total == 2 {
-            break;
+        if !result.is_empty() {
+            if best_count * 2 < total {
+                break;
+            } else if best_count * 2 == 2 && total == 2 {
+                break;
+            }
         }
 
         let mut separator = Separator::None;
