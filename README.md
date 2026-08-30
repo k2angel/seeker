@@ -12,6 +12,8 @@ seeker help
 
  - Support bmson.
  - Support archive file. (zip, 7z, rar)
+ - Support multiple encoding. (shift-jis, big5, euc-kr)
+ - Support detect encoding.
  - Manage difficulty table.
  - Export bmt to beatoraja. (sort use beatoraja-config)
  - Open in STELLAVERSE IR or BMS Score Viewer.
