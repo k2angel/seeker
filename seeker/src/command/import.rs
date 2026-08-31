@@ -1,12 +1,11 @@
 use anyhow::Result;
 use std::path::Path;
-use tempfile::tempdir;
 
 use crate::cli::ImportArgs;
-use crate::database::Database;
-use crate::import::{extract_archive, find_song_dirs, import_directory};
-use crate::model::Config;
-use crate::model::import::{ImportEncoding, ImportOption};
+use seeker_core::database::Database;
+use seeker_core::import::{extract_to_tmp, find_song_dirs, import_directory};
+use seeker_core::model::Config;
+use seeker_core::model::import::ImportOption;
 
 pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     let mut db = Database::open(&config.library)?;
@@ -30,12 +29,17 @@ fn main(db: &mut Database, config: &Config, path: &Path, args: &ImportArgs) -> R
     let root = if path.is_dir() {
         path
     } else {
-        tmp = tempdir()?;
-        extract_archive(path, tmp.path())?;
+        tmp = extract_to_tmp(path)?;
         tmp.path()
     };
 
     let song_dirs = find_song_dirs(root);
+
+    let options = ImportOption {
+        r#move: args.r#move,
+        dry_run: args.dry_run,
+        encoding: args.encoding.clone().map(Into::into).unwrap_or_default(),
+    };
 
     for (i, (directory, files)) in song_dirs.clone().into_iter().enumerate() {
         println!(
@@ -44,13 +48,7 @@ fn main(db: &mut Database, config: &Config, path: &Path, args: &ImportArgs) -> R
             files.len()
         );
 
-        let options = ImportOption {
-            r#move: args.r#move,
-            dry_run: args.dry_run,
-            encoding: args.encoding.clone().unwrap_or(ImportEncoding::ShiftJis),
-        };
-
-        let result = match import_directory(db, &config.directory, &directory, &files, options) {
+        let result = match import_directory(db, &config.directory, &directory, &files, &options) {
             Ok(result) => result,
             Err(err) => {
                 eprintln!("{}", err);

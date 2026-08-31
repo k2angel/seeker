@@ -1,9 +1,10 @@
 use anyhow::Result;
 
-use crate::database::Database;
-use crate::model::Config;
-use crate::model::table::Table;
-use crate::utils::ui::confirm_input;
+use seeker_core::database::Database;
+use seeker_core::model::Config;
+use seeker_core::model::table::Table;
+
+use crate::utils::confirm_input;
 
 pub fn run(config: &Config, query: Option<String>) -> Result<()> {
     let db = Database::open(&config.library)?;

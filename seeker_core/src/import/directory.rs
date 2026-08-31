@@ -98,7 +98,7 @@ pub fn import_directory(
     library: &Path,
     root: &Path,
     files: &[PathBuf],
-    option: ImportOption,
+    option: &ImportOption,
 ) -> Result<ImportResult> {
     let mut charts = Vec::new();
     let mut charts_due = Vec::new();

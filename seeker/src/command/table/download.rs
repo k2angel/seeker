@@ -1,20 +1,11 @@
 use anyhow::Result;
-use serde_json::from_slice;
-use url::Url;
+
+use seeker_core::database::Database;
+use seeker_core::model::{Config, SearchExpr, SearchTerm};
+use seeker_core::table::parser::parse_data;
+use seeker_core::utils::{is_url, tokenize};
 
 use crate::cli::DownloadArgs;
-use crate::database::Database;
-use crate::model::Config;
-use crate::model::table;
-use crate::model::{SearchExpr, SearchTerm};
-use crate::utils::tokenize;
-
-fn is_url(value: &str) -> bool {
-    matches!(
-        Url::parse(value),
-        Ok(url) if matches!(url.scheme(), "http" | "https")
-    )
-}
 
 fn print_url(title: &str, url: &str, detail: bool) {
     if detail {
@@ -31,7 +22,7 @@ pub fn run(config: &Config, args: DownloadArgs) -> Result<()> {
     let tables = db.get_tables(args.query)?;
 
     for table in tables {
-        let data: Vec<table::Data> = from_slice(&table.data)?;
+        let data = parse_data(&table.data)?;
 
         for chart in data {
             let Some(hash) = chart.sha256.as_deref().or(chart.md5.as_deref()) else {

@@ -1,9 +1,9 @@
 use anyhow::Result;
 
 use crate::cli::TableListArgs;
-use crate::database::Database;
-use crate::model::Config;
-use crate::model::table::HasTimestamp;
+use seeker_core::database::Database;
+use seeker_core::model::Config;
+use seeker_core::model::table::HasTimestamp;
 
 pub fn run(config: &Config, args: TableListArgs) -> Result<()> {
     let db = Database::open(&config.library)?;

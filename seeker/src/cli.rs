@@ -1,8 +1,8 @@
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
-use crate::model::SearchArgs;
-use crate::model::import::ImportEncoding;
+use seeker_core::model::import::Encoding;
+use seeker_core::model::{SearchExpr, SearchTerm};
 
 #[derive(Parser)]
 #[command(version, about = "BMS library manager.")]
@@ -45,15 +45,21 @@ pub enum TableSubcommand {
 
     /// Remove tables.
     #[command(visible_alias = "rm")]
-    Remove {
-        query: Option<String>,
-    },
+    Remove { query: Option<String> },
 
     /// Update tables.
     Update { query: Option<String> },
 
     /// Show chart url or url_diff.
     Download(DownloadArgs),
+}
+
+#[derive(Clone, ValueEnum)]
+pub enum ImportEncoding {
+    ShiftJis,
+    Big5,
+    EucKr,
+    Auto,
 }
 
 #[derive(Args)]
@@ -127,7 +133,6 @@ pub struct TableListArgs {
     pub url: bool,
 }
 
-
 #[derive(Args)]
 pub struct DownloadArgs {
     pub query: Option<String>,
@@ -143,4 +148,38 @@ pub struct DownloadArgs {
     /// Show chart url_diff only.
     #[arg(long)]
     pub url_diff: bool,
+}
+
+#[derive(Args)]
+pub struct SearchArgs {
+    pub query: Option<Vec<String>>,
+}
+
+impl SearchArgs {
+    pub fn expr(&self) -> Option<SearchExpr> {
+        let query = self.query.as_ref()?;
+
+        let groups: Vec<Vec<SearchTerm>> = query
+            .split(|query| query == "OR")
+            .map(|group| group.iter().map(|query| SearchTerm::parse(query)).collect())
+            .filter(|group: &Vec<SearchTerm>| !group.is_empty())
+            .collect();
+
+        match groups.len() {
+            0 => None,
+            1 => Some(SearchExpr::And(groups.into_iter().next().unwrap())),
+            _ => Some(SearchExpr::Or(groups)),
+        }
+    }
+}
+
+impl From<ImportEncoding> for Encoding {
+    fn from(value: ImportEncoding) -> Self {
+        match value {
+            ImportEncoding::Auto => Self::Auto,
+            ImportEncoding::ShiftJis => Self::ShiftJis,
+            ImportEncoding::Big5 => Self::Big5,
+            ImportEncoding::EucKr => Self::EucKr,
+        }
+    }
 }

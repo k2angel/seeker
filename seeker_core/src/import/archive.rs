@@ -1,10 +1,9 @@
 use anyhow::{Context, Result, bail};
 use filetime::{FileTime, set_file_mtime};
-use sevenz_rust;
 use std::fs::{self, File};
 use std::io::{Read, copy};
 use std::path::{Path, PathBuf};
-use unrar;
+use tempfile::{TempDir, tempdir};
 use zip::ExtraField;
 use zip::read::{ZipArchive, ZipFile};
 
@@ -102,4 +101,11 @@ pub fn extract_archive(path: &Path, output: &Path) -> Result<()> {
     };
 
     result.with_context(|| format!("failed to extract {}", path.display()))
+}
+
+pub fn extract_to_tmp(path: &Path) -> Result<TempDir> {
+    let tmp = tempdir()?;
+    extract_archive(path, tmp.path())?;
+
+    Ok(tmp)
 }

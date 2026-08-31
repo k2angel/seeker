@@ -1,0 +1,12 @@
+[package]
+name = "seeker"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.104"
+clap = { version = "4.6.4", features = ["derive"] }
+dialoguer = "0.12.0"
+open = "5.4.1"
+
+seeker_core = { path = "../seeker_core" }

@@ -1,9 +1,9 @@
 use anyhow::Result;
 
-use crate::database::Database;
-use crate::model::Config;
-use crate::model::table::HasTimestamp;
-use crate::table::load::load_table;
+use seeker_core::database::Database;
+use seeker_core::model::Config;
+use seeker_core::model::table::HasTimestamp;
+use seeker_core::table::load::load_table;
 
 pub fn run(config: &Config, query: Option<String>) -> Result<()> {
     let mut db = Database::open(&config.library)?;

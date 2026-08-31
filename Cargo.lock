@@ -2214,12 +2214,21 @@ name = "seeker"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "clap",
+ "dialoguer",
+ "open",
+ "seeker_core",
+]
+
+[[package]]
+name = "seeker_core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
  "bms-rs",
  "bytes",
  "chardetng",
  "chrono",
- "clap",
- "dialoguer",
  "directories",
  "encoding_rs",
  "filetime",
@@ -2227,7 +2236,6 @@ dependencies = [
  "fs_extra",
  "hex",
  "md5",
- "open",
  "regex",
  "reqwest",
  "rusqlite",

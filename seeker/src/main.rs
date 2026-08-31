@@ -1,9 +1,12 @@
 use anyhow::Result;
 use clap::Parser;
 
-use seeker::cli::{Cli, Command, TableSubcommand};
-use seeker::command;
-use seeker::config;
+mod cli;
+mod command;
+mod utils;
+
+use crate::cli::{Cli, Command, TableSubcommand};
+use seeker_core::config;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();

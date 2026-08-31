@@ -1,10 +1,10 @@
 use anyhow::Result;
 
 use crate::cli::ListArgs;
-use crate::database::Database;
-use crate::model::Config;
-use crate::model::song::HasMetadata;
-use crate::utils;
+use seeker_core::database::Database;
+use seeker_core::model::Config;
+use seeker_core::model::song::HasMetadata;
+use seeker_core::utils;
 
 pub fn run(config: &Config, args: ListArgs) -> Result<()> {
     let db = Database::open(&config.library)?;

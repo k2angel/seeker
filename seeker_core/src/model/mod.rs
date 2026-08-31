@@ -8,7 +8,7 @@ pub mod table;
 
 pub use chart::{Chart, ChartRow};
 pub use config::Config;
-pub use search::{SearchArgs, SearchExpr, SearchTerm};
+pub use search::{SearchExpr, SearchTerm};
 pub use song::{Song, SongRow};
 
 #[derive(Debug, PartialEq, Clone)]

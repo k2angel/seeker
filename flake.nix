@@ -25,25 +25,37 @@
         pkgs = nixpkgs.legacyPackages.${system};
         lib = pkgs.lib;
         craneLib = crane.mkLib pkgs;
+
         unfilteredRoot = ./.;
+
+        inherit
+          (craneLib.crateNameFromCargoToml {
+            cargoToml = ./seeker/Cargo.toml;
+          })
+          pname
+          version
+          ;
 
         src = lib.fileset.toSource {
           root = unfilteredRoot;
           fileset = lib.fileset.unions [
             (craneLib.fileset.commonCargoSources unfilteredRoot)
             (lib.fileset.fileFilter (file: file.hasExt "sql") unfilteredRoot)
-            (lib.fileset.maybeMissing ./tests/data)
+            (lib.fileset.maybeMissing ./seeker_core/tests/data)
           ];
         };
 
         commonArgs = {
-          inherit src;
+          inherit pname version src;
           strictDeps = true;
           buildInputs = with pkgs; [
-            pkgs.sqlite
-            pkgs.openssl
+            sqlite
+            openssl
           ];
           nativeBuildInputs = [ pkgs.pkg-config ];
+
+          cargoBuildExtraArgs = "-p seeker";
+          cargoTestExtraArgs = "-p seeker_core";
         };
 
         cargoArtifacts = craneLib.buildDepsOnly (

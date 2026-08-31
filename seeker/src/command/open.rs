@@ -1,10 +1,11 @@
 use anyhow::Result;
 
 use crate::cli::OpenArgs;
-use crate::database::Database;
-use crate::model::Config;
-use crate::utils::song_map;
-use crate::utils::ui::confirm_input;
+use seeker_core::database::Database;
+use seeker_core::model::Config;
+use seeker_core::utils::song_map;
+
+use crate::utils::confirm_input;
 
 pub fn run(config: &Config, args: OpenArgs) -> Result<()> {
     let db = Database::open(&config.library)?;

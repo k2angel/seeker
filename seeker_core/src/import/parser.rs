@@ -6,11 +6,11 @@ use encoding_rs::{BIG5, EUC_KR, SHIFT_JIS};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
-use crate::model::import::ImportEncoding;
+use crate::model::import::Encoding;
 use crate::model::{Chart, Song};
 use crate::utils;
 
-pub fn parse_chart(path: &Path, encoding: &ImportEncoding) -> Result<Chart> {
+pub fn parse_chart(path: &Path, encoding: &Encoding) -> Result<Chart> {
     let bytes = std::fs::read(path)?;
     let sha256 = utils::sha256sum(&bytes);
     let modified_at = std::fs::metadata(path)?
@@ -54,10 +54,10 @@ pub fn parse_chart(path: &Path, encoding: &ImportEncoding) -> Result<Chart> {
         )
     } else {
         let (source, _, _) = match encoding {
-            ImportEncoding::ShiftJis => SHIFT_JIS.decode(&bytes),
-            ImportEncoding::Big5 => BIG5.decode(&bytes),
-            ImportEncoding::EucKr => EUC_KR.decode(&bytes),
-            ImportEncoding::Auto => {
+            Encoding::ShiftJis => SHIFT_JIS.decode(&bytes),
+            Encoding::Big5 => BIG5.decode(&bytes),
+            Encoding::EucKr => EUC_KR.decode(&bytes),
+            Encoding::Auto => {
                 let mut detector = EncodingDetector::new(Iso2022JpDetection::Deny);
                 detector.feed(&bytes, true);
 
