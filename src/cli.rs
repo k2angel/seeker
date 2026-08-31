@@ -52,6 +52,8 @@ pub enum TableSubcommand {
         query: Option<String>,
     },
 
+    /// Show chart url or url_diff.
+    Download(DownloadArgs),
 }
 
 #[derive(Args)]
@@ -119,4 +121,22 @@ pub struct TableListArgs {
 
     #[arg(short, long)]
     pub url: bool,
+}
+
+
+#[derive(Args)]
+pub struct DownloadArgs {
+    pub query: Option<String>,
+
+    /// Show chart title.
+    #[arg(long)]
+    pub detail: bool,
+
+    /// Show chart utl only.
+    #[arg(long)]
+    pub url: bool,
+
+    /// Show chart url_diff only.
+    #[arg(long)]
+    pub url_diff: bool,
 }

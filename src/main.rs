@@ -21,6 +21,7 @@ fn main() -> Result<()> {
             TableSubcommand::List(args) => command::table::list::run(&config, args),
             TableSubcommand::Remove { query } => command::table::remove::run(&config, query),
             TableSubcommand::Update { query } => command::table::update::run(&config, query),
+            TableSubcommand::Download(args) => command::table::download::run(&config, args),
         },
     }
 }
