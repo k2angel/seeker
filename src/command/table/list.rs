@@ -1,9 +1,9 @@
 use anyhow::Result;
-use chrono::{DateTime, Local};
 
 use crate::cli::TableListArgs;
 use crate::database::Database;
 use crate::model::Config;
+use crate::model::table::HasTimestamp;
 
 pub fn run(config: &Config, args: TableListArgs) -> Result<()> {
     let db = Database::open(&config.library)?;
@@ -20,9 +20,9 @@ pub fn run(config: &Config, args: TableListArgs) -> Result<()> {
                 table.symbol,
                 table.name,
                 table
-                    .last_modified
-                    .and_then(|v| DateTime::from_timestamp(v, 0))
-                    .map(|v| format!(" ({})", v.with_timezone(&Local).format("%Y-%m-%d %H:%M:%S")))
+                    .get_timestamp()
+                    .as_ref()
+                    .map(|v| format!(" ({})", v))
                     .unwrap_or_default()
             );
         }

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::{DateTime, Local};
 use flate2::Compression;
 use flate2::write::GzEncoder;
 use serde::{Deserialize, Serialize};
@@ -98,6 +99,20 @@ pub struct Trophy {
 pub struct CourseData {
     pub md5: String,
     pub title: String,
+}
+
+pub trait HasTimestamp {
+    fn last_modified(&self) -> Option<i64>;
+
+    fn get_timestamp(&self) -> Option<String> {
+        self.last_modified().and_then(|ts| {
+            DateTime::from_timestamp_secs(ts).map(|v| {
+                v.with_timezone(&Local)
+                    .format("%Y-%m-%d %H:%M:%S")
+                    .to_string()
+            })
+        })
+    }
 }
 
 impl Table {
@@ -264,6 +279,18 @@ impl TableRow {
             last_modified: row.get("last_modified")?,
             data: row.get("data")?,
         })
+    }
+}
+
+impl HasTimestamp for Table {
+    fn last_modified(&self) -> Option<i64> {
+        self.last_modified
+    }
+}
+
+impl HasTimestamp for TableRow {
+    fn last_modified(&self) -> Option<i64> {
+        self.last_modified
     }
 }
 

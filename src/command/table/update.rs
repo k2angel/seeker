@@ -1,8 +1,8 @@
 use anyhow::Result;
-use chrono::{DateTime, Local};
 
 use crate::database::Database;
 use crate::model::Config;
+use crate::model::table::HasTimestamp;
 use crate::table::load::load_table;
 
 pub fn run(config: &Config, query: Option<String>) -> Result<()> {
@@ -20,17 +20,14 @@ pub fn run(config: &Config, query: Option<String>) -> Result<()> {
                 table_new.symbol,
                 table_new.name,
                 table
-                    .last_modified
-                    .and_then(|v| DateTime::from_timestamp(v, 0))
-                    .map(|v| format!(" ({})", v.with_timezone(&Local).format("%Y-%m-%d %H:%M:%S")))
+                    .get_timestamp()
+                    .as_ref()
+                    .map(|v| format!(" ({})", v))
                     .unwrap_or_default(),
                 table_new
-                    .last_modified
-                    .and_then(|v| DateTime::from_timestamp(v, 0))
-                    .map(|v| format!(
-                        " -> ({})",
-                        v.with_timezone(&Local).format("%Y-%m-%d %H:%M:%S")
-                    ))
+                    .get_timestamp()
+                    .as_ref()
+                    .map(|v| format!(" -> ({})", v))
                     .unwrap_or_default()
             );
 
