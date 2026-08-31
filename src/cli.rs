@@ -36,21 +36,21 @@ pub enum Command {
 
 #[derive(Subcommand)]
 pub enum TableSubcommand {
-    Import {
-        url: Vec<String>,
-    },
+    /// Import tables.
+    Import { url: Vec<String> },
 
+    /// List tables.
     #[command(visible_alias = "ls")]
     List(TableListArgs),
 
+    /// Remove tables.
     #[command(visible_alias = "rm")]
     Remove {
         query: Option<String>,
     },
 
-    Update {
-        query: Option<String>,
-    },
+    /// Update tables.
+    Update { query: Option<String> },
 
     /// Show chart url or url_diff.
     Download(DownloadArgs),
@@ -65,9 +65,11 @@ pub struct ImportArgs {
     #[arg(short, long)]
     pub r#move: bool,
 
+    /// Select file encoding.
     #[arg(short, long)]
     pub encoding: Option<ImportEncoding>,
 
+    /// Do not import.
     #[arg(long)]
     pub dry_run: bool,
 }
@@ -95,6 +97,7 @@ pub struct RemoveArgs {
     #[arg(short, long)]
     pub song: bool,
 
+    /// Do not ask when removing items.
     #[arg(short, long)]
     pub force: bool,
 }
@@ -119,6 +122,7 @@ pub struct OpenArgs {
 pub struct TableListArgs {
     pub query: Option<String>,
 
+    /// Show table header_url.
     #[arg(short, long)]
     pub url: bool,
 }
