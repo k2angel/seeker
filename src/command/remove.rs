@@ -2,7 +2,8 @@ use anyhow::Result;
 
 use crate::cli::RemoveArgs;
 use crate::database::Database;
-use crate::model::{Config, Song};
+use crate::model::Config;
+use crate::model::song::HasMetadata;
 use crate::utils::song_map;
 use crate::utils::ui::confirm_input;
 
@@ -30,9 +31,8 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
         };
 
         for index in selections {
-            let song_row = &songs[index];
-            let song_id = song_row.id;
-            let song = Song::try_from(song_row)?;
+            let song = &songs[index];
+            let song_id = song.id;
 
             std::fs::remove_dir_all(song.library_dir(&config.directory))?;
             db.remove_song(song_id)?;

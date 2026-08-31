@@ -1,14 +1,13 @@
 use anyhow::Result;
 use std::collections::HashMap;
 
-use crate::model;
+use crate::model::SongRow;
 
-pub fn song_map(rows: Vec<model::SongRow>) -> Result<HashMap<i64, model::Song>> {
+pub fn song_map(rows: Vec<SongRow>) -> Result<HashMap<i64, SongRow>> {
     rows.into_iter()
         .map(|row| {
             let id = row.id;
-            let song = model::Song::try_from(row)?;
-            Ok((id, song))
+            Ok((id, row))
         })
         .collect()
 }

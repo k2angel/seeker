@@ -7,8 +7,8 @@ use walkdir::WalkDir;
 
 use crate::database::Database;
 use crate::import::parser::{build_song, parse_chart};
-use crate::model::Song;
 use crate::model::import::{ImportOption, ImportResult};
+use crate::model::song::{HasMetadata, Song};
 
 fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
     let options = fs_extra::dir::CopyOptions {

@@ -11,7 +11,6 @@ pub struct Song {
     pub bgas: Vec<PathBuf>,
 }
 
-#[derive(Clone)]
 pub struct SongRow {
     pub id: i64,
 
@@ -20,6 +19,50 @@ pub struct SongRow {
 
     pub wavs: String,
     pub bgas: String,
+}
+
+pub trait HasMetadata {
+    fn title(&self) -> &str;
+    fn artist(&self) -> &str;
+
+    fn directory_name(&self) -> String {
+        let name = format!("[{}] {}", self.artist(), self.title());
+
+        name.chars()
+            .map(|c| match c {
+                '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*' => '_',
+                c if c.is_control() => '_',
+                _ => c,
+            })
+            .collect::<String>()
+            .trim()
+            .trim_end_matches('.')
+            .to_string()
+    }
+
+    fn library_dir(&self, library: &Path) -> PathBuf {
+        library.join(self.directory_name())
+    }
+}
+
+impl HasMetadata for Song {
+    fn title(&self) -> &str {
+        &self.title
+    }
+
+    fn artist(&self) -> &str {
+        &self.artist
+    }
+}
+
+impl HasMetadata for SongRow {
+    fn title(&self) -> &str {
+        &self.title
+    }
+
+    fn artist(&self) -> &str {
+        &self.artist
+    }
 }
 
 impl SongRow {
@@ -44,36 +87,5 @@ impl TryFrom<SongRow> for Song {
             wavs: from_str(&row.wavs)?,
             bgas: from_str(&row.bgas)?,
         })
-    }
-}
-
-impl TryFrom<&SongRow> for Song {
-    type Error = anyhow::Error;
-
-    fn try_from(row: &SongRow) -> Result<Self> {
-        Self::try_from(row.clone())
-    }
-}
-
-impl Song {
-    pub fn directory_name(&self) -> String {
-        fn sanitize_filename(s: &str) -> String {
-            s.chars()
-                .map(|c| match c {
-                    '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*' => '_',
-                    c if c.is_control() => '_',
-                    _ => c,
-                })
-                .collect::<String>()
-                .trim()
-                .trim_end_matches('.')
-                .to_string()
-        }
-
-        sanitize_filename(&format!("[{}] {}", self.artist, self.title))
-    }
-
-    pub fn library_dir(&self, library: &Path) -> PathBuf {
-        library.join(self.directory_name())
     }
 }

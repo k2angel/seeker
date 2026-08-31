@@ -3,7 +3,7 @@ mod chart;
 mod config;
 pub mod import;
 mod search;
-mod song;
+pub mod song;
 pub mod table;
 
 pub use chart::{Chart, ChartRow};

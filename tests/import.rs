@@ -1,12 +1,12 @@
 use anyhow::Result;
-use std::fs;
 use std::path::Path;
 use tempfile::tempdir;
 
 use seeker::database::Database;
 use seeker::import::find_song_dirs;
 use seeker::import::parser;
-use seeker::model::{SearchExpr, SearchTerm, Song};
+use seeker::model::song::HasMetadata;
+use seeker::model::{SearchExpr, SearchTerm};
 
 mod wrap;
 
@@ -24,7 +24,7 @@ fn import_directory_test() -> Result<()> {
     assert_eq!(db.count_songs(None)?, 1);
     assert_eq!(db.count_charts(None)?, 73);
 
-    let entries: Vec<_> = fs::read_dir(library.path())?
+    let entries: Vec<_> = std::fs::read_dir(library.path())?
         .filter_map(Result::ok)
         .collect();
 
@@ -44,7 +44,7 @@ fn import_chart_test() -> Result<()> {
         wrap::import_directory_with_default(&mut db, &library.path(), &directory, &files)?;
     }
 
-    let song = Song::try_from(db.get_song(1)?)?;
+    let song = db.get_song(1)?;
     let expr = &SearchExpr::And(vec![SearchTerm::parse("私の狂気")]);
     let charts = db.search_charts(Some(expr))?;
 
@@ -84,7 +84,7 @@ fn build_song_test() {
 
     let mut charts = Vec::new();
 
-    for entry in fs::read_dir(dir).unwrap() {
+    for entry in std::fs::read_dir(dir).unwrap() {
         let path = entry.unwrap().path();
 
         if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
