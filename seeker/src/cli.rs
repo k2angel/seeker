@@ -1,4 +1,5 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap_complete::aot::Shell;
 use std::path::PathBuf;
 
 use seeker_core::model::import::Encoding;
@@ -29,6 +30,12 @@ pub enum Command {
 
     /// Open in STELLAVERSE IR.
     Open(OpenArgs),
+
+    /// Generate shell completion.
+    Completion {
+        #[arg(value_enum)]
+        shell: Shell,
+    },
 
     #[command(subcommand)]
     Table(TableSubcommand),
@@ -72,7 +79,7 @@ pub struct ImportArgs {
     pub r#move: bool,
 
     /// Select file encoding.
-    #[arg(short, long)]
+    #[arg(short, long, value_enum)]
     pub encoding: Option<ImportEncoding>,
 
     /// Do not import.

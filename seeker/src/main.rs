@@ -18,6 +18,7 @@ fn main() -> Result<()> {
         Command::Remove(args) => command::remove::run(&config, args),
         Command::Stats(args) => command::stats::run(&config, args),
         Command::Open(args) => command::open::run(&config, args),
+        Command::Completion { shell } => command::completion::run(shell),
 
         Command::Table(command) => match command {
             TableSubcommand::Import { url } => command::table::import::run(&config, url),

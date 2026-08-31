@@ -1,3 +1,4 @@
+pub mod completion;
 pub mod import;
 pub mod list;
 pub mod open;
