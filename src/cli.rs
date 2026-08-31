@@ -13,7 +13,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Command {
-    /// Import BMS files into the libarry.
+    /// Import BMS files into the library.
     Import(ImportArgs),
 
     /// List songs or charts.
