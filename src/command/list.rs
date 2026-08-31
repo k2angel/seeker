@@ -24,7 +24,7 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
         }
     } else {
         let charts = db.search_charts(expr.as_ref())?;
-        let songs = utils::song_map(db.detail_songs(charts.iter().map(|c| c.song_id))?)?;
+        let songs = utils::song_map(db.get_songs(charts.iter().map(|c| c.song_id))?)?;
 
         for chart in charts.iter() {
             let song = &songs[&chart.song_id];
