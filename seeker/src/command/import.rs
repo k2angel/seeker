@@ -1,11 +1,12 @@
 use anyhow::Result;
 use std::path::Path;
 
-use crate::cli::ImportArgs;
 use seeker_core::database::Database;
 use seeker_core::import::{extract_to_tmp, find_song_dirs, import_directory};
 use seeker_core::model::Config;
 use seeker_core::model::import::ImportOption;
+
+use crate::cli::ImportArgs;
 
 pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     let mut db = Database::open(&config.library)?;

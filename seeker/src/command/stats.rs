@@ -1,8 +1,9 @@
 use anyhow::Result;
 
-use crate::cli::StatsArgs;
 use seeker_core::database::Database;
 use seeker_core::model::Config;
+
+use crate::cli::StatsArgs;
 
 pub fn run(config: &Config, args: StatsArgs) -> Result<()> {
     let db = Database::open(&config.library)?;
