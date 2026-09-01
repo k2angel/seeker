@@ -23,7 +23,8 @@ pub fn run(config: &Config, urls: Vec<String>) -> Result<()> {
         );
 
         if let Some(beatoraja) = &config.beatoraja {
-            table.write_bmt(beatoraja)?;
+            let bmt = table.to_bmt()?;
+            bmt.write(beatoraja)?;
         }
     }
 

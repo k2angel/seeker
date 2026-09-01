@@ -1,4 +1,11 @@
+use anyhow::Result;
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use serde::Serialize;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+
+use crate::utils;
 
 #[derive(Debug, Serialize)]
 pub enum Class {
@@ -116,5 +123,49 @@ impl TryFrom<&str> for Constraint {
             "hcn" => Ok(Self::Hcn),
             _ => Err(()),
         }
+    }
+}
+
+impl Bmt {
+    fn get_path(&self, dir: &Path) -> Result<PathBuf> {
+        Ok(dir.join(format!(
+            "table/{}.bmt",
+            utils::sha256sum(self.url.as_bytes())
+        )))
+    }
+
+    pub fn write(&self, dir: &Path) -> Result<()> {
+        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(&serde_json::to_vec(&self)?)?;
+
+        let bmt = encoder.finish()?;
+        std::fs::write(self.get_path(dir)?, bmt)?;
+
+        let config_path = dir.join("config_sys.json");
+        let mut config: serde_json::Value =
+            serde_json::from_reader(std::fs::File::open(&config_path)?)?;
+
+        let table_url = config.get_mut("tableURL").and_then(|v| v.as_array_mut());
+
+        match table_url {
+            Some(urls) => {
+                if !urls.iter().any(|url| url.as_str() == Some(&self.url)) {
+                    urls.push(serde_json::Value::String(self.url.clone()));
+                }
+            }
+            None => {
+                config["tableURL"] = serde_json::json!([self.url]);
+            }
+        }
+
+        std::fs::write(config_path, serde_json::to_vec_pretty(&config)?)?;
+
+        Ok(())
+    }
+
+    pub fn remove(&self, dir: &Path) -> Result<()> {
+        std::fs::remove_file(self.get_path(dir)?)?;
+
+        Ok(())
     }
 }

@@ -32,7 +32,8 @@ pub fn run(config: &Config, query: Option<String>) -> Result<()> {
             );
 
             if let Some(beatoraja) = &config.beatoraja {
-                table_new.write_bmt(beatoraja)?;
+                let bmt = table_new.to_bmt()?;
+                bmt.write(beatoraja)?;
             }
         }
     }

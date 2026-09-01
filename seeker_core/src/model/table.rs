@@ -1,15 +1,10 @@
 use anyhow::Result;
 use chrono::{DateTime, Local};
-use flate2::Compression;
-use flate2::write::GzEncoder;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_slice, from_str};
 use std::collections::HashMap;
-use std::io::Write;
-use std::path::{Path, PathBuf};
 
 use crate::model::bmt;
-use crate::utils;
 
 pub struct Table {
     pub header_url: String,
@@ -116,7 +111,7 @@ pub trait HasTimestamp {
 }
 
 impl Table {
-    fn to_bmt(&self) -> Result<Vec<u8>> {
+    pub fn to_bmt(&self) -> Result<bmt::Bmt> {
         let data: Vec<Data> = from_slice(&self.data)?;
         let mut folders: HashMap<String, Vec<bmt::Song>> = HashMap::new();
 
@@ -207,60 +202,13 @@ impl Table {
                 .collect()
         });
 
-        let bmt = bmt::Bmt {
+        Ok(bmt::Bmt {
             url: self.header_url.clone(),
             name: self.name.clone(),
             tag: self.symbol.clone(),
             folder,
             course,
-        };
-
-        Ok(serde_json::to_vec(&bmt)?)
-    }
-
-    fn get_bmt(&self, dir: &Path) -> Result<PathBuf> {
-        Ok(dir.join(format!(
-            "table/{}.bmt",
-            utils::sha256sum(self.header_url.as_bytes())
-        )))
-    }
-
-    pub fn write_bmt(&self, dir: &Path) -> Result<()> {
-        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(&self.to_bmt()?)?;
-
-        let bmt = encoder.finish()?;
-        std::fs::write(self.get_bmt(dir)?, bmt)?;
-
-        let config_path = dir.join("config_sys.json");
-        let mut config: serde_json::Value =
-            serde_json::from_reader(std::fs::File::open(&config_path)?)?;
-
-        let table_url = config.get_mut("tableURL").and_then(|v| v.as_array_mut());
-
-        match table_url {
-            Some(urls) => {
-                if !urls
-                    .iter()
-                    .any(|url| url.as_str() == Some(&self.header_url))
-                {
-                    urls.push(serde_json::Value::String(self.header_url.clone()));
-                }
-            }
-            None => {
-                config["tableURL"] = serde_json::json!([self.header_url]);
-            }
-        }
-
-        std::fs::write(config_path, serde_json::to_vec_pretty(&config)?)?;
-
-        Ok(())
-    }
-
-    pub fn remove_bmt(&self, dir: &Path) -> Result<()> {
-        std::fs::remove_file(self.get_bmt(dir)?)?;
-
-        Ok(())
+        })
     }
 }
 

@@ -24,7 +24,8 @@ pub fn run(config: &Config, query: Option<String>) -> Result<()> {
         db.remove_table(table.id)?;
 
         if let Some(beatoraja) = &config.beatoraja {
-            Table::try_from(table)?.remove_bmt(beatoraja)?;
+            let bmt = Table::try_from(table)?.to_bmt()?;
+            bmt.remove(beatoraja)?;
         }
     }
 
