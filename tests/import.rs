@@ -49,7 +49,7 @@ fn import_chart_test() -> Result<()> {
     let charts = db.search_charts(Some(expr))?;
 
     for chart in charts {
-        let path = song.library_dir(&library.path()).join(&chart.filename);
+        let path = song.get_path(&library.path()).join(&chart.filename);
 
         std::fs::remove_file(&path)?;
         db.remove_chart(chart.id)?;

@@ -35,7 +35,7 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
             let song = &songs[index];
             let song_id = song.id;
 
-            std::fs::remove_dir_all(song.library_dir(&config.directory))?;
+            std::fs::remove_dir_all(song.get_path(&config.directory))?;
             db.remove_song(song_id)?;
         }
     } else {
@@ -79,13 +79,13 @@ pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
             let chart = &charts[index];
             let song = &songs[&chart.song_id];
             let song_id = chart.song_id;
-            let path = song.library_dir(&config.directory).join(&chart.filename);
+            let path = song.get_path(&config.directory).join(&chart.filename);
 
             std::fs::remove_file(&path)?;
             db.remove_chart(chart.id)?;
 
             if db.count_song_charts(song_id)? == 0 {
-                std::fs::remove_dir_all(song.library_dir(&config.directory))?;
+                std::fs::remove_dir_all(song.get_path(&config.directory))?;
                 db.remove_song(song_id)?;
             }
         }

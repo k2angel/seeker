@@ -40,7 +40,7 @@ pub trait HasMetadata {
             .to_string()
     }
 
-    fn library_dir(&self, library: &Path) -> PathBuf {
+    fn get_path(&self, library: &Path) -> PathBuf {
         library.join(self.directory_name())
     }
 }

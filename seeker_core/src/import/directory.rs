@@ -171,7 +171,7 @@ pub fn import_directory(
                 Database::update_song_resources(&tx, song_id)?;
             }
 
-            transfer_dir(root, &song.library_dir(library), option.r#move)?;
+            transfer_dir(root, &song.get_path(library), option.r#move)?;
             tx.commit()?;
         }
 

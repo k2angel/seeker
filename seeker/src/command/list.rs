@@ -18,7 +18,7 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
 
         for song in songs {
             if args.path {
-                println!("{}", song.library_dir(&config.directory).display())
+                println!("{}", song.get_path(&config.directory).display())
             } else {
                 println!("{} - {}", song.artist, song.title);
             }
@@ -33,7 +33,7 @@ pub fn run(config: &Config, args: ListArgs) -> Result<()> {
             if args.path {
                 println!(
                     "{}",
-                    song.library_dir(&config.directory)
+                    song.get_path(&config.directory)
                         .join(&chart.filename)
                         .display()
                 );
