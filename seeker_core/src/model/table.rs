@@ -115,7 +115,7 @@ impl Table {
         let data: Vec<Data> = from_slice(&self.data)?;
         let mut folders: HashMap<String, Vec<bmt::Song>> = HashMap::new();
 
-        for row in &data {
+        for row in data.iter() {
             let song = bmt::Song {
                 class: bmt::Class::SongData,
                 title: row.title.clone(),

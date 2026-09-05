@@ -34,7 +34,7 @@ fn database_insert_test() -> Result<()> {
 
     let song_id = Database::insert_song(&tx, &song)?;
 
-    for chart in &charts {
+    for chart in charts.iter() {
         Database::insert_chart(&tx, song_id, chart)?;
     }
 

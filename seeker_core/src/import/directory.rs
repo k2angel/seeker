@@ -155,7 +155,7 @@ pub fn import_directory(
                 }
             };
 
-            for chart in &charts {
+            for chart in charts.iter() {
                 let filename = chart.filename.to_string_lossy();
 
                 match Database::find_chart_by_filename(&tx, song_id, &filename)? {

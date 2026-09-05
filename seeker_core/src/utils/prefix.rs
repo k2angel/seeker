@@ -102,7 +102,7 @@ where
 
         // valueが最も多いTokenを選ぶ
         let mut counts: HashMap<&str, usize> = HashMap::with_capacity(tokens.len());
-        for token in &tokens {
+        for token in tokens.iter() {
             *counts.entry(&token.value).or_default() += 1;
         }
 
