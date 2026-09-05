@@ -15,7 +15,7 @@ fn print_url(title: &str, url: &str, detail: bool) {
     println!("{url}");
 }
 
-pub fn run(config: &Config, args: DownloadArgs) -> Result<()> {
+pub fn run(config: Config, args: DownloadArgs) -> Result<()> {
     let db = Database::open(&config.library)?;
     db.create_schema()?;
 

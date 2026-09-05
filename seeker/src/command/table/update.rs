@@ -5,7 +5,7 @@ use seeker_core::model::Config;
 use seeker_core::model::table::HasTimestamp;
 use seeker_core::table::load::load_table;
 
-pub fn run(config: &Config, query: Option<String>) -> Result<()> {
+pub fn run(config: Config, query: Option<String>) -> Result<()> {
     let mut db = Database::open(&config.library)?;
     db.create_schema()?;
 

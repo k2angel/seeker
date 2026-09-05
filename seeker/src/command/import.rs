@@ -8,12 +8,18 @@ use seeker_core::model::import::ImportOption;
 
 use crate::cli::ImportArgs;
 
-pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
+pub fn run(config: Config, args: ImportArgs) -> Result<()> {
     let mut db = Database::open(&config.library)?;
     db.create_schema()?;
 
+    let options = ImportOption {
+        r#move: args.r#move,
+        dry_run: args.dry_run,
+        encoding: args.encoding.map(Into::into).unwrap_or_default(),
+    };
+
     for (i, p) in args.path.clone().into_iter().enumerate() {
-        if let Err(err) = main(&mut db, config, &p, &args) {
+        if let Err(err) = main(&mut db, &config, &p, &options) {
             eprintln!("Error: {}", err);
         }
 
@@ -25,7 +31,7 @@ pub fn run(config: &Config, args: ImportArgs) -> Result<()> {
     Ok(())
 }
 
-fn main(db: &mut Database, config: &Config, path: &Path, args: &ImportArgs) -> Result<()> {
+fn main(db: &mut Database, config: &Config, path: &Path, options: &ImportOption) -> Result<()> {
     let tmp;
     let root = if path.is_dir() {
         path
@@ -35,12 +41,6 @@ fn main(db: &mut Database, config: &Config, path: &Path, args: &ImportArgs) -> R
     };
 
     let song_dirs = find_song_dirs(root);
-
-    let options = ImportOption {
-        r#move: args.r#move,
-        dry_run: args.dry_run,
-        encoding: args.encoding.clone().map(Into::into).unwrap_or_default(),
-    };
 
     for (i, (directory, files)) in song_dirs.clone().into_iter().enumerate() {
         println!(

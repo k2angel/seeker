@@ -8,7 +8,7 @@ use seeker_core::utils::song_map;
 use crate::cli::RemoveArgs;
 use crate::utils::confirm_input;
 
-pub fn run(config: &Config, args: RemoveArgs) -> Result<()> {
+pub fn run(config: Config, args: RemoveArgs) -> Result<()> {
     let db = Database::open(&config.library)?;
     db.create_schema()?;
 

@@ -7,7 +7,7 @@ use seeker_core::utils;
 
 use crate::cli::ListArgs;
 
-pub fn run(config: &Config, args: ListArgs) -> Result<()> {
+pub fn run(config: Config, args: ListArgs) -> Result<()> {
     let db = Database::open(&config.library)?;
     db.create_schema()?;
 

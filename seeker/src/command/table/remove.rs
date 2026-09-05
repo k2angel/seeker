@@ -6,7 +6,7 @@ use seeker_core::model::table::Table;
 
 use crate::utils::confirm_input;
 
-pub fn run(config: &Config, query: Option<String>) -> Result<()> {
+pub fn run(config: Config, query: Option<String>) -> Result<()> {
     let db = Database::open(&config.library)?;
     db.create_schema()?;
 
