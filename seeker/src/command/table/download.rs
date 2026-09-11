@@ -45,7 +45,9 @@ pub fn run(config: Config, args: DownloadArgs) -> Result<()> {
                 && !skip_url
                 && let Some(url) = chart.url.filter(|u| is_url(u))
             {
-                if chart.artist.is_some() && chart.url_diff.as_deref().is_some_and(is_url) {
+                if let Some(artist) = chart.artist
+                    && chart.url_diff.as_deref().is_some_and(is_url)
+                {
                     let expr = &SearchExpr::And(vec![
                         SearchTerm {
                             field: Some("title".to_string()),
@@ -53,7 +55,7 @@ pub fn run(config: Config, args: DownloadArgs) -> Result<()> {
                         },
                         SearchTerm {
                             field: Some("artist".to_string()),
-                            value: tokenize(&chart.artist.unwrap())[0].value.clone(),
+                            value: tokenize(&artist)[0].value.clone(),
                         },
                     ]);
 

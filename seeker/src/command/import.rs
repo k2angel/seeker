@@ -49,7 +49,7 @@ fn main(db: &mut Database, config: &Config, path: &Path, options: &ImportOption)
             files.len()
         );
 
-        let result = match import_directory(db, &config.directory, &directory, &files, &options) {
+        let result = match import_directory(db, &config.directory, &directory, &files, options) {
             Ok(result) => result,
             Err(err) => {
                 eprintln!("{}", err);
