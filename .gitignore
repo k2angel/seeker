@@ -1,3 +1,4 @@
-/.direnv
-/result
-/target
+.direnv
+result
+target
+seeker_core/tests/data
