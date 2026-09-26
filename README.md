@@ -1,6 +1,6 @@
 # seeker
 
-BMS library manager
+CLI BMS library manager
 
 ## Usage
 
