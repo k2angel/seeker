@@ -1,8 +1,8 @@
 use anyhow::Result;
 use std::{fs, path::Path};
 
-use seeker::database::Database;
-use seeker::import::parser::{build_song, parse_chart};
+use seeker_core::database::Database;
+use seeker_core::import::parser::build_song;
 
 mod wrap;
 

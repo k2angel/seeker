@@ -2,7 +2,7 @@ use anyhow::{Ok, Result};
 use std::collections::HashSet;
 use std::fs::read;
 
-use seeker::table::parser;
+use seeker_core::table::parser;
 
 #[test]
 fn parse_header_test() -> Result<()> {

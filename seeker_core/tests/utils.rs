@@ -1,5 +1,5 @@
-use seeker::model::{Separator, Token};
-use seeker::utils;
+use seeker_core::model::{Separator, Token};
+use seeker_core::utils;
 
 #[test]
 fn tokenize_test() {

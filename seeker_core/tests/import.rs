@@ -2,11 +2,11 @@ use anyhow::Result;
 use std::path::Path;
 use tempfile::tempdir;
 
-use seeker::database::Database;
-use seeker::import::find_song_dirs;
-use seeker::import::parser;
-use seeker::model::song::HasMetadata;
-use seeker::model::{SearchExpr, SearchTerm};
+use seeker_core::database::Database;
+use seeker_core::import::find_song_dirs;
+use seeker_core::import::parser;
+use seeker_core::model::song::HasMetadata;
+use seeker_core::model::{SearchExpr, SearchTerm};
 
 mod wrap;
 
@@ -66,7 +66,7 @@ fn import_chart_test() -> Result<()> {
 
 #[test]
 fn parse_chart_test() {
-    let chart = wrap::parse_chart_with_sjis(Path::new("tests/data/-.bms")).unwrap();
+    let chart = wrap::parse_chart_with_sjis(&Path::new("tests/data/-.bms").to_path_buf()).unwrap();
 
     println!("{:#?}", chart);
 
