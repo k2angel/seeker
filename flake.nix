@@ -88,6 +88,7 @@
             rustc
             cargo
             clippy
+            rust-analyzer
             sqlite
             openssl
           ];
