@@ -117,3 +117,12 @@ Archives should contain the files for a song directly, rather than other archive
 [rib2bit/BeMusicSeeker](https://tumblr.ribbit.xyz/post/129562866015/bemusicseeker-%E6%AD%A3%E5%BC%8F%E7%89%88%E3%82%92%E5%85%AC%E9%96%8B%E3%81%97%E3%81%BE%E3%81%97%E3%81%9F-v034) — respect
 
 [MikuroXia/bms-rs](https://github.com/MikuroXina/bms-rs) — BMS format parser
+
+## License
+
+Licensed under either of:
+
+- [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- [MIT license](http://opensource.org/licenses/MIT)
+
+at your option.
