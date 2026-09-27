@@ -9,16 +9,22 @@ use crate::cli::{Cli, Command, TableSubcommand};
 use seeker_core::config;
 
 fn main() -> Result<()> {
-    let cli = Cli::parse();
+    match Cli::parse().command {
+        Command::Completion { shell } => command::completion::run(shell),
+        command => run(command),
+    }
+}
+
+fn run(command: Command) -> Result<()> {
     let config = config::load()?;
 
-    match cli.command {
+    match command {
         Command::Import(args) => command::import::run(config, args),
         Command::List(args) => command::list::run(config, args),
         Command::Remove(args) => command::remove::run(config, args),
         Command::Stats(args) => command::stats::run(config, args),
         Command::Open(args) => command::open::run(config, args),
-        Command::Completion { shell } => command::completion::run(shell),
+        Command::Completion { .. } => unreachable!("completion is handled before loading config"),
 
         Command::Table(command) => match command {
             TableSubcommand::Import { url } => command::table::import::run(config, url),
