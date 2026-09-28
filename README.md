@@ -24,7 +24,7 @@ There is a configuration file left in `~/.config/seeker/config.json`
 
 ```
 {
-    "directory": "<path to BMS library>",
+    "directory": "<path to BMS directory>",
     "library": "<path to database file>",
     "beatoraja": "<path to beatoraja directory (option)>"
 }
