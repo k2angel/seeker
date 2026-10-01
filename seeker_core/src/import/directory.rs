@@ -3,12 +3,14 @@ use filetime::{FileTime, set_file_mtime};
 use std::collections::HashSet;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::{Path, PathBuf};
+use tempfile::{TempDir, tempdir};
 use walkdir::WalkDir;
 
 use crate::database::Database;
 use crate::import::parser::{build_song, parse_chart};
 use crate::model::import::{ImportOption, ImportResult};
 use crate::model::song::{HasMetadata, Song};
+use crate::utils::is_bms;
 
 fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
     let options = fs_extra::dir::CopyOptions {
@@ -53,6 +55,19 @@ fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
     }
 
     Ok(())
+}
+
+pub fn copy_to_tmp(path: &Path) -> Result<TempDir> {
+    let modified = path.metadata()?.modified()?;
+    let mtime = FileTime::from_system_time(modified);
+
+    let tmp = tempdir()?;
+    let dst = tmp.path().join(path.file_name().unwrap());
+    let _ = std::fs::copy(path, &dst);
+
+    set_file_mtime(dst, mtime)?;
+
+    Ok(tmp)
 }
 
 pub fn find_song_dirs(root: &Path) -> Vec<(PathBuf, Vec<PathBuf>)> {

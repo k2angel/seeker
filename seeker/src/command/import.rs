@@ -2,9 +2,10 @@ use anyhow::Result;
 use std::path::Path;
 
 use seeker_core::database::Database;
-use seeker_core::import::{extract_to_tmp, find_song_dirs, import_directory};
+use seeker_core::import::{copy_to_tmp, extract_to_tmp, find_song_dirs, import_directory};
 use seeker_core::model::Config;
 use seeker_core::model::import::ImportOption;
+use seeker_core::utils::is_bms;
 
 use crate::cli::ImportArgs;
 
@@ -35,6 +36,9 @@ fn main(db: &mut Database, config: &Config, path: &Path, options: &ImportOption)
     let tmp;
     let root = if path.is_dir() {
         path
+    } else if is_bms(path.extension()) {
+        tmp = copy_to_tmp(path)?;
+        tmp.path()
     } else {
         tmp = extract_to_tmp(path)?;
         tmp.path()
