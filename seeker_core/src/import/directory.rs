@@ -69,16 +69,7 @@ pub fn find_song_dirs(root: &Path) -> Vec<(PathBuf, Vec<PathBuf>)> {
             .unwrap()
             .filter_map(Result::ok)
             .map(|entry| entry.path())
-            .filter(|path| {
-                path.extension()
-                    .and_then(|e| e.to_str())
-                    .is_some_and(|ext| {
-                        matches!(
-                            ext.to_ascii_lowercase().as_str(),
-                            "bms" | "bme" | "bml" | "pms" | "bmw" | "bmson"
-                        )
-                    })
-            })
+            .filter(|path| is_bms(path.extension()))
             .collect();
 
         if result.iter().any(|(song_dir, _)| dir.starts_with(song_dir)) {

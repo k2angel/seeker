@@ -3,6 +3,7 @@ use std::{fs, path::Path};
 
 use seeker_core::database::Database;
 use seeker_core::import::parser::build_song;
+use seeker_core::utils::is_bms;
 
 mod wrap;
 
@@ -17,13 +18,8 @@ fn database_insert_test() -> Result<()> {
     for entry in fs::read_dir("tests/data/hitsugi")? {
         let path = entry?.path();
 
-        if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-            if matches!(
-                ext.to_ascii_lowercase().as_str(),
-                "bms" | "bme" | "bml" | "pms"
-            ) {
-                charts.push(wrap::parse_chart_with_sjis(&path)?);
-            }
+        if is_bms(path.extension()) {
+            charts.push(wrap::parse_chart_with_sjis(&path)?);
         }
     }
 

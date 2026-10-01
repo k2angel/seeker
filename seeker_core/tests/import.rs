@@ -7,6 +7,7 @@ use seeker_core::import::find_song_dirs;
 use seeker_core::import::parser;
 use seeker_core::model::song::HasMetadata;
 use seeker_core::model::{SearchExpr, SearchTerm};
+use seeker_core::utils::is_bms;
 
 mod wrap;
 
@@ -87,13 +88,8 @@ fn build_song_test() {
     for entry in std::fs::read_dir(dir).unwrap() {
         let path = entry.unwrap().path();
 
-        if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-            if matches!(
-                ext.to_ascii_lowercase().as_str(),
-                "bms" | "bme" | "bml" | "pms"
-            ) {
-                charts.push(wrap::parse_chart_with_sjis(&path).unwrap());
-            }
+        if is_bms(path.extension()) {
+            charts.push(wrap::parse_chart_with_sjis(&path).unwrap());
         }
     }
 
