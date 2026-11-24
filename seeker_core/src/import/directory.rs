@@ -20,6 +20,7 @@ fn transfer_dir(src: &Path, dst: &Path, move_files: bool) -> Result<()> {
     };
 
     let entries: Vec<_> = WalkDir::new(src)
+        .min_depth(1)
         .into_iter()
         .filter_map(Result::ok)
         .map(|entry| entry.into_path())
